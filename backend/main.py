@@ -5,8 +5,11 @@ from typing import List
 
 from database import SessionLocal, engine
 from models import Submission
-from schemas import SubmissionCreate, SubmissionResponse
+from schemas import SubmissionCreate, SubmissionResponse, PresignedRequest
 import models
+
+from pydantic import BaseModel
+from s3 import generate_presigned_put
 
 # Create tables if they don't exist (backup to Alembic)
 models.Base.metadata.create_all(bind=engine)
@@ -44,3 +47,11 @@ def create_submission(body: SubmissionCreate, db: Session = Depends(get_db)):
 @app.get("/submissions", response_model=List[SubmissionResponse])
 def list_submissions(db: Session = Depends(get_db)):
     return db.query(Submission).order_by(Submission.created_at.desc()).all()
+
+@app.post("/upload/presigned")
+def get_presigned_url(body: PresignedRequest):
+    """
+    Client calls this before uploading. Returns a signed S3 URL
+    and the key where the file will live once uploaded.
+    """
+    return generate_presigned_put(body.filename)

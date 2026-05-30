@@ -2,6 +2,10 @@ from datetime import datetime
 from typing import Optional, Literal
 from pydantic import BaseModel
 
+# What the client sends for a presigned request
+class PresignedRequest(BaseModel):
+    filename: str
+
 # What the client sends in (no id, no created_at, - DB sets those)
 class SubmissionCreate(BaseModel):
     name:   str
