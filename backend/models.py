@@ -1,0 +1,14 @@
+from datetime import datetime
+from sqlalchemy import Column, Integer, String, Text, DateTime
+from database import Base
+
+class Submission(Base):
+    __tablename__ = "submissions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)   # person's name
+    relation = Column(String, nullable=False)   # "Son", "Granddaughter", etc.
+    type = Column(String, nullable=False) # "video" or "note"
+    s3_key = Column(String, nullable=True) # filled in later
+    content = Column(Text, nullable=True) # text notes only
+    created_at = Column(DateTime, default=datetime.utcnow)
