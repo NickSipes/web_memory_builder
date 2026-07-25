@@ -31,6 +31,11 @@ def generate_presigned_put(filename: str, content_type: str = "application/octet
     )
     return {"presigned_url": url, "s3_key": key, "content_type": content_type}
 
+def delete_object(s3_key: str) -> None:
+    """Remove an object from the bucket (used when an admin rejects/deletes)."""
+    s3_client.delete_object(Bucket=BUCKET_NAME, Key=s3_key)
+
+
 def generate_presigned_get(s3_key: str, expires_in: int = 3600) -> str:
     """
     Returns a URL someone can GET (stream/download) a specific object.

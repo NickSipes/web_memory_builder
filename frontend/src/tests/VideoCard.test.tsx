@@ -1,0 +1,31 @@
+import { describe, it, expect } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import VideoCard from '../components/VideoCard'
+import type { Submission } from '../types'
+
+const video: Submission = {
+    id: 1, name: 'Alice', relation: 'Daughter', type: 'video',
+    s3_key: 'submissions/x/recording.webm', content: null,
+    created_at: '', playback_url: 'https://s3.example.com/signed',
+}
+
+describe('VideoCard', () => {
+    it('renders play button placeholder before interaction', () => {
+        const { container } = render(<VideoCard submission={video} />)
+        expect(screen.getByRole('button', { name: 'Play video' })).toBeInTheDocument()
+        expect(container.querySelector('video')).toBeNull()
+    })
+
+    it('renders video element after clicking play', async () => {
+        const { container } = render(<VideoCard submission={video} />)
+        await userEvent.click(screen.getByRole('button', { name: 'Play video' }))
+        expect(container.querySelector('video')).toHaveAttribute('src', video.playback_url)
+    })
+
+    it('renders submitter name and relation', () => {
+        render(<VideoCard submission={video} />)
+        expect(screen.getByText('Alice')).toBeInTheDocument()
+        expect(screen.getByText(/Daughter/)).toBeInTheDocument()
+    })
+})

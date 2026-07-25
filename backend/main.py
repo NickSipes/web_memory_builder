@@ -1,25 +1,48 @@
-from fastapi import FastAPI, Depends, HTTPException
+import os
+import secrets
+from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy.orm import Session
 from typing import List
 
 from database import SessionLocal, engine
 from models import Submission
-from schemas import SubmissionCreate, SubmissionResponse, PresignedRequest
+from schemas import SubmissionCreate, SubmissionResponse
 import models
 
 from pydantic import BaseModel
-from s3 import generate_presigned_put
+from s3 import generate_presigned_put, generate_presigned_get, delete_object
+
+# Admin creds — override in prod via env. Defaults match what the family uses.
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "katienick")
+security = HTTPBasic()
+
+def require_admin(creds: HTTPBasicCredentials = Depends(security)):
+    # compare_digest avoids leaking length/content via timing
+    ok = (secrets.compare_digest(creds.username, ADMIN_USERNAME)
+          and secrets.compare_digest(creds.password, ADMIN_PASSWORD))
+    if not ok:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Basic"},
+        )
 
 # Create tables if they don't exist (backup to Alembic)
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# Allow the React dev server to call this API (for Phase 3)
+# Local dev server + the deployed frontend (set FRONTEND_URL in prod)
+ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    os.getenv("FRONTEND_URL", ""),
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[o for o in ALLOWED_ORIGINS if o],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -44,9 +67,50 @@ def create_submission(body: SubmissionCreate, db: Session = Depends(get_db)):
     db.refresh(record) # re-reads from DB to get id and created_at
     return record
 
+def _serialize(r: Submission) -> SubmissionResponse:
+    resp = SubmissionResponse.model_validate(r)
+    # video/photo get a fresh signed URL; notes stay None
+    if r.s3_key:
+        resp.playback_url = generate_presigned_get(r.s3_key)
+    return resp
+
 @app.get("/submissions", response_model=List[SubmissionResponse])
 def list_submissions(db: Session = Depends(get_db)):
-    return db.query(Submission).order_by(Submission.created_at.desc()).all()
+    records = (db.query(Submission)
+               .filter(Submission.approved.is_(True))
+               .order_by(Submission.created_at.desc()).all())
+    return [_serialize(r) for r in records]
+
+@app.get("/admin/submissions", response_model=List[SubmissionResponse])
+def admin_list_submissions(db: Session = Depends(get_db), _: None = Depends(require_admin)):
+    # Everything, approved or not — the moderation queue
+    records = db.query(Submission).order_by(Submission.created_at.desc()).all()
+    return [_serialize(r) for r in records]
+
+@app.post("/admin/submissions/{submission_id}/approve", response_model=SubmissionResponse)
+def approve_submission(submission_id: int, db: Session = Depends(get_db), _: None = Depends(require_admin)):
+    record = db.get(Submission, submission_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    record.approved = True
+    db.commit()
+    db.refresh(record)
+    return _serialize(record)
+
+@app.delete("/admin/submissions/{submission_id}", status_code=204)
+def delete_submission(submission_id: int, db: Session = Depends(get_db), _: None = Depends(require_admin)):
+    # Serves both "reject" (before approval) and "delete existing" — same action.
+    record = db.get(Submission, submission_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    if record.s3_key:
+        delete_object(record.s3_key)   # drop the video/photo from S3 too
+    db.delete(record)
+    db.commit()
+
+class PresignedRequest(BaseModel):
+    filename: str
+    content_type: str = "video/webm" # default for video; callers can override
 
 @app.post("/upload/presigned")
 def get_presigned_url(body: PresignedRequest):
@@ -54,4 +118,4 @@ def get_presigned_url(body: PresignedRequest):
     Client calls this before uploading. Returns a signed S3 URL
     and the key where the file will live once uploaded.
     """
-    return generate_presigned_put(body.filename)
+    return generate_presigned_put(body.filename, body.content_type)
