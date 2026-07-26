@@ -11,16 +11,18 @@ const video: Submission = {
 }
 
 describe('VideoCard', () => {
-    it('renders play button placeholder before interaction', () => {
+    it('shows the video thumbnail with a play overlay before interaction', () => {
         const { container } = render(<VideoCard submission={video} />)
         expect(screen.getByRole('button', { name: 'Play video' })).toBeInTheDocument()
-        expect(container.querySelector('video')).toBeNull()
+        // thumbnail frame is the video element with the #t media fragment
+        expect(container.querySelector('video')?.getAttribute('src')).toContain(video.playback_url!)
     })
 
-    it('renders video element after clicking play', async () => {
+    it('hides the play overlay after clicking play', async () => {
         const { container } = render(<VideoCard submission={video} />)
         await userEvent.click(screen.getByRole('button', { name: 'Play video' }))
-        expect(container.querySelector('video')).toHaveAttribute('src', video.playback_url)
+        expect(screen.queryByRole('button', { name: 'Play video' })).toBeNull()
+        expect(container.querySelector('video')).toBeInTheDocument()
     })
 
     it('renders submitter name and relation', () => {

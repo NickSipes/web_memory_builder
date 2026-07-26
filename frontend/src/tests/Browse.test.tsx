@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor, cleanup } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import Browse from '../pages/Browse'
 import type { Submission } from '../types'
 
@@ -58,5 +59,25 @@ describe('Browse', () => {
         expect(row).toContain('1 videos')
         expect(row).toContain('1 photos')
         expect(row).toContain('1 notes')
+    })
+
+    it('filters by type', async () => {
+        mockFetch(data)
+        render(<Browse />)
+        await waitFor(() => expect(screen.getByText('Alice')).toBeInTheDocument())
+        await userEvent.selectOptions(screen.getByLabelText('Filter by type'), 'note')
+        expect(screen.getByText('"Hi"')).toBeInTheDocument()      // note kept
+        expect(screen.queryByText('Alice')).toBeNull()            // video hidden
+        expect(screen.queryByRole('img')).toBeNull()              // photo hidden
+    })
+
+    it('filters by relation', async () => {
+        mockFetch(data)
+        render(<Browse />)
+        await waitFor(() => expect(screen.getByText('Alice')).toBeInTheDocument())
+        await userEvent.selectOptions(screen.getByLabelText('Filter by relation'), 'Granddaughter')
+        expect(screen.getByText('Cara')).toBeInTheDocument()      // Granddaughter kept
+        expect(screen.queryByText('Alice')).toBeNull()            // Daughter hidden
+        expect(screen.queryByText('Bob')).toBeNull()              // Son hidden
     })
 })

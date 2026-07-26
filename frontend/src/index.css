@@ -161,3 +161,16 @@ button { font-family: var(--sans); cursor: pointer; }
 .admin-media { max-width: 320px; border-radius: 10px; overflow: hidden; margin-bottom: 12px; background: var(--ink); }
 .admin-media img, .admin-media video { width: 100%; display: block; }
 .admin-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* --- Admin floating button (home page) --- */
+.admin-fab {
+  position: fixed; bottom: 20px; right: 20px; z-index: 10;
+  padding: 9px 18px; background: var(--ink); color: var(--cream);
+  border-radius: 24px; font-size: 13px; text-decoration: none;
+  box-shadow: 0 4px 14px rgba(42, 32, 23, 0.25); transition: background .15s;
+}
+.admin-fab:hover { background: var(--gold); }
+
+/* --- Browse filters --- */
+.filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+.filter-bar select { width: auto; min-width: 150px; margin-bottom: 0; padding: 8px 34px 8px 12px; font-size: 14px; }

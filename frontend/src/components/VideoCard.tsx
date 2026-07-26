@@ -1,17 +1,33 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import type { Submission } from "../types"
 
-// Play-button placeholder until clicked, then swaps in the real <video>.
+// Shows the video's first frame as a thumbnail (the `#t=0.1` media fragment
+// tells the browser to render that frame), with a play overlay until clicked.
 export default function VideoCard({ submission }: { submission: Submission }) {
+    const ref = useRef<HTMLVideoElement>(null)
     const [playing, setPlaying] = useState(false)
+
+    function play() {
+        setPlaying(true)
+        // guard: jsdom has no real media element, and browsers may reject autoplay
+        try { ref.current?.play()?.catch(() => {}) } catch { /* ignore */ }
+    }
 
     return (
         <div className="media-card">
             <div className="media-thumb">
-                {playing && submission.playback_url ? (
-                    <video src={submission.playback_url} controls autoPlay />
-                ) : (
-                    <button className="play-btn" onClick={() => setPlaying(true)} aria-label="Play video">
+                {submission.playback_url && (
+                    <video
+                        ref={ref}
+                        src={`${submission.playback_url}#t=0.1`}
+                        preload="metadata"
+                        playsInline
+                        controls={playing}
+                        muted={!playing}
+                    />
+                )}
+                {!playing && (
+                    <button className="play-btn" onClick={play} aria-label="Play video">
                         <span className="play-icon"><span className="play-tri" /></span>
                     </button>
                 )}

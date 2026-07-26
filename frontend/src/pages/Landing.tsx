@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import RelationSelect from "../components/RelationSelect"
 
 export default function Landing() {
@@ -41,6 +41,8 @@ export default function Landing() {
                     <div key={i} className="confetti-dot" style={{ background: c }} />
                 ))}
             </div>
+
+            <Link to="/admin" className="admin-fab">Admin</Link>
         </div>
     )
 }
