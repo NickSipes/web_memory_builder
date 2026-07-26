@@ -1,5 +1,22 @@
 import { useState, useRef, useEffect } from "react";
 
+// Prefer MP4 (H.264) — it plays in every browser including Safari, so the
+// recorded video is viewable everywhere. Fall back to WebM where MP4 recording
+// isn't supported (older Chrome/Firefox). Safari records MP4 natively; the old
+// hard-coded "video/webm" mislabeled those bytes and broke playback.
+function pickVideoMimeType(): string {
+    const candidates = [
+        'video/mp4',
+        'video/webm;codecs=vp9',
+        'video/webm;codecs=vp8',
+        'video/webm',
+    ]
+    for (const t of candidates) {
+        if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported(t)) return t
+    }
+    return '' // let the browser choose its default
+}
+
 // The five states the recorder can be in
 // This is a state machine - only certain transitions are valid
 type RecordState = 'idle' | 'requesting' | 'ready' | 'recording' | 'preview'
@@ -79,7 +96,10 @@ export function useMediaRecorder(): UseMediaRecorderReturn {
         if (!streamRef.current) return
         chunksRef.current = []
 
-        const recorder = new MediaRecorder(streamRef.current)
+        const mimeType = pickVideoMimeType()
+        const recorder = mimeType
+            ? new MediaRecorder(streamRef.current, { mimeType })
+            : new MediaRecorder(streamRef.current)
         recorderRef.current = recorder
 
         // MediaRecorder fires this event periodically with chunks of encoded video
@@ -90,7 +110,9 @@ export function useMediaRecorder(): UseMediaRecorderReturn {
 
         // Fires after stop() completes. We assemble all chunks into one Blob here.
         recorder.onstop = () => {
-            const blob = new Blob(chunksRef.current, {type: 'video/webm' })
+            // Label the blob with the format actually recorded, so playback works
+            const type = recorder.mimeType || 'video/webm'
+            const blob = new Blob(chunksRef.current, { type })
 
             // createObjectURL creates a temporary browser URL for this Blob.
             // You can use it as a <video src> to play back the recording.

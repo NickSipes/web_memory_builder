@@ -27,11 +27,13 @@ export function useUpload() {
     async function submitMedia(type: 'video' | 'photo', { name, relation, blob, note }: SubmitMediaArgs): Promise<boolean> {
         setState({ status: 'uploading', progress: 0, error: null })
         const f = blob as File
-        const [fallbackName, fallbackType] = type === 'video'
-            ? ['recording.webm', 'video/webm']
-            : ['photo.jpg', 'image/jpeg']
-        const filename = f.name || fallbackName
-        const contentType = blob.type || fallbackType
+        const contentType = blob.type || (type === 'video' ? 'video/webm' : 'image/jpeg')
+        // filename extension must match the actual format (a recorded MP4 saved
+        // as .webm won't open in most players)
+        const ext = type === 'video'
+            ? (contentType.includes('mp4') ? 'mp4' : 'webm')
+            : (contentType.includes('png') ? 'png' : 'jpg')
+        const filename = f.name || (type === 'video' ? `recording.${ext}` : `photo.${ext}`)
 
         try {
             const { presigned_url, s3_key } = await getPresignedUrl(filename, contentType)

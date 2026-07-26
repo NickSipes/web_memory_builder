@@ -29,7 +29,7 @@ export default function VideoRecorder({ onVideoReady }: VideoRecorderProps) {
                     style={{ display: showLive ? 'block' : 'none' }}
                 />
                 {recordState === 'preview' && previewUrl && (
-                    <video src={previewUrl} controls />
+                    <video src={previewUrl} controls playsInline />
                 )}
                 {(recordState === 'idle' || recordState === 'requesting') && (
                     <div className="camera-overlay">
