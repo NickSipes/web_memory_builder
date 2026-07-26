@@ -9,22 +9,11 @@ interface UploadState {
     error: string | null
 }
 
-interface SubmitVideoArgs {
+interface SubmitMediaArgs {
     name: string
     relation: string
-    blob: Blob
-}
-
-interface SubmitPhotoArgs {
-    name: string
-    relation: string
-    file: File
-}
-
-interface SubmitNoteArgs {
-    name: string
-    relation: string
-    content: string
+    blob: Blob        // a File (uploaded) or a captured Blob (camera)
+    note?: string     // optional written note that rides along with the media
 }
 
 export function useUpload() {
@@ -34,43 +23,25 @@ export function useUpload() {
         error: null,
     })
 
-    async function submitVideo({ name, relation, blob }: SubmitVideoArgs): Promise<boolean> {
+    // Both video and photo take the same path; only the type + defaults differ.
+    async function submitMedia(type: 'video' | 'photo', { name, relation, blob, note }: SubmitMediaArgs): Promise<boolean> {
         setState({ status: 'uploading', progress: 0, error: null })
+        const f = blob as File
+        const [fallbackName, fallbackType] = type === 'video'
+            ? ['recording.webm', 'video/webm']
+            : ['photo.jpg', 'image/jpeg']
+        const filename = f.name || fallbackName
+        const contentType = blob.type || fallbackType
 
         try {
-            // Ask FastAPI for a signed S3 URL
-            const { presigned_url, s3_key, content_type } = await getPresignedUrl('recording.webm')
+            const { presigned_url, s3_key } = await getPresignedUrl(filename, contentType)
 
-            // PUT the blob directly to S3
-            await uploadToS3(presigned_url, blob, content_type, (progress) => {
-                setState(prev => ({...prev, progress}))
-            })
-
-            // Save the metadata to Postgres
-            setState(prev => ({ ...prev, status: 'saving' }))
-            await createSubmission({ name, relation, type: 'video', s3_key})
-
-            setState({ status: 'done', progress: 100, error: null})
-            return true
-        } catch (err) {
-            setState({ status: 'error', progress: 0, error: (err as Error).message})
-            return false
-        }
-    }
-
-    async function submitPhoto({ name, relation, file }: SubmitPhotoArgs): Promise<boolean> {
-        // Same two-step upload as video; content_type comes from the picked file
-        setState({ status: 'uploading', progress: 0, error: null })
-
-        try {
-            const { presigned_url, s3_key, content_type } = await getPresignedUrl(file.name, file.type)
-
-            await uploadToS3(presigned_url, file, content_type, (progress) => {
+            await uploadToS3(presigned_url, blob, contentType, (progress) => {
                 setState(prev => ({ ...prev, progress }))
             })
 
             setState(prev => ({ ...prev, status: 'saving' }))
-            await createSubmission({ name, relation, type: 'photo', s3_key })
+            await createSubmission({ name, relation, type, s3_key, content: note?.trim() || undefined })
 
             setState({ status: 'done', progress: 100, error: null })
             return true
@@ -80,21 +51,10 @@ export function useUpload() {
         }
     }
 
-    async function submitNote({ name, relation, content }: SubmitNoteArgs): Promise<boolean> {
-        // Skips S3, text goes straight to Postgres
-        setState({ status: 'saving', progress: 0, error: null})
+    const submitVideo = (args: SubmitMediaArgs) => submitMedia('video', args)
+    const submitPhoto = (args: SubmitMediaArgs) => submitMedia('photo', args)
 
-        try {
-            await createSubmission({ name, relation, type: 'note', content})
-            setState({ status: 'done', progress: 100, error: null})
-            return true
-        } catch (err) {
-            setState({ status: 'error', progress: 0, error: (err as Error).message})
-            return false
-        }
-    }
-
-    return { ...state, submitVideo, submitPhoto, submitNote }
+    return { ...state, submitVideo, submitPhoto }
 }
 
 // Kept outside the hook since it isn't stateful

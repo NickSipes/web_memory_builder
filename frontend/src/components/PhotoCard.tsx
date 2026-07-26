@@ -10,6 +10,7 @@ export default function PhotoCard({ submission }: { submission: Submission }) {
             </div>
             <div className="card-foot">
                 <strong>{submission.name}</strong> <span className="muted">· {submission.relation}</span>
+                {submission.content && <div className="card-note">"{submission.content}"</div>}
             </div>
         </div>
     )
