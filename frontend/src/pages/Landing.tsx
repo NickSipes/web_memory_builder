@@ -17,7 +17,7 @@ export default function Landing() {
     return (
         <div className="panel">
             <div className="hero-label">80th Birthday Celebration</div>
-            <h1 className="hero-title">Leave a message<br />for Grandpa Jerry</h1>
+            <h1 className="hero-title">Leave a message<br />for Jerry Sipes</h1>
             <p className="hero-subtitle">Your message will be part of a video he'll treasure forever.</p>
 
             <label htmlFor="name-input">Your name</label>
