@@ -42,16 +42,26 @@ export default function Admin() {
 
     async function handleApprove(id: number) {
         if (!creds) return
-        await approveSubmission(id, creds)
-        await load(creds)
+        setError(null)
+        try {
+            await approveSubmission(id, creds)
+            await load(creds)
+        } catch (e) {
+            setError(`Couldn't approve: ${(e as Error).message}`)
+        }
     }
 
     async function handleDelete(id: number) {
         if (!creds) return
-        await deleteSubmission(id, creds)
-        setConfirmId(null)
-        setSelected((prev) => { const n = new Set(prev); n.delete(id); return n })
-        await load(creds)
+        setError(null)
+        try {
+            await deleteSubmission(id, creds)
+            setConfirmId(null)
+            setSelected((prev) => { const n = new Set(prev); n.delete(id); return n })
+            await load(creds)
+        } catch (e) {
+            setError(`Couldn't remove: ${(e as Error).message}`)
+        }
     }
 
     function toggleSelect(id: number) {
