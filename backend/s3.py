@@ -11,7 +11,19 @@ load_dotenv()
 # automatically read.
 BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
 REGION = os.getenv("AWS_REGION")
-s3_client = boto3.client("s3", region_name=REGION, config=Config(signature_version="s3v4"))
+# Use the regional endpoint (bucket.s3.<region>.amazonaws.com). The global
+# endpoint (bucket.s3.amazonaws.com) doesn't return CORS headers for browser
+# fetch(), which breaks client-side downloads. Media <video>/<img> tags aren't
+# affected (they skip CORS), so this only surfaced once we added zip downloads.
+_endpoint = f"https://s3.{REGION}.amazonaws.com" if REGION else None
+s3_client = boto3.client(
+    "s3",
+    region_name=REGION,
+    endpoint_url=_endpoint,
+    # virtual-hosted addressing => bucket.s3.<region>.amazonaws.com, which is the
+    # form browsers get CORS headers from (path-style regional does not).
+    config=Config(signature_version="s3v4", s3={"addressing_style": "virtual"}),
+)
 
 def generate_presigned_put(filename: str, content_type: str = "application/octet-stream", expires_in: int =3600) -> dict:
     """
@@ -30,6 +42,11 @@ def generate_presigned_put(filename: str, content_type: str = "application/octet
         ExpiresIn=expires_in,
     )
     return {"presigned_url": url, "s3_key": key, "content_type": content_type}
+
+def delete_object(s3_key: str) -> None:
+    """Remove an object from the bucket (used when an admin rejects/deletes)."""
+    s3_client.delete_object(Bucket=BUCKET_NAME, Key=s3_key)
+
 
 def generate_presigned_get(s3_key: str, expires_in: int = 3600) -> str:
     """
