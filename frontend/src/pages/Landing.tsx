@@ -18,7 +18,13 @@ export default function Landing() {
         <div className="panel">
             <div className="hero-label">80th Birthday Celebration</div>
             <h1 className="hero-title">Leave a message<br />for Jerry Sipes</h1>
-            <p className="hero-subtitle">Your message will be part of a video he'll treasure forever.</p>
+            <p className="hero-subtitle">Record a short video or share a few photos to celebrate his 80th birthday.</p>
+
+            <ul className="how-list">
+                <li><span>🎥</span> All videos will be compiled into one keepsake film we'll play at his party.</li>
+                <li><span>🖼️</span> Photos become a slideshow shown at the celebration.</li>
+                <li><span>🎁</span> After the party, Jerry gets full access to this website and everything in it.</li>
+            </ul>
 
             <label htmlFor="name-input">Your name</label>
             <input

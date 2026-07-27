@@ -57,7 +57,12 @@ body { margin: 0; background: var(--cream); min-height: 100svh; }
 /* --- Hero / headings --- */
 .hero-label { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; font-weight: 500; }
 .hero-title { font-family: var(--serif); font-size: 32px; line-height: 1.15; color: var(--ink); margin: 0 0 8px; }
-.hero-subtitle { font-size: 15px; color: var(--ink-muted); margin-bottom: 22px; }
+.hero-subtitle { font-size: 15px; color: var(--ink-muted); margin-bottom: 18px; }
+
+/* "how it works" intentions on the landing page */
+.how-list { list-style: none; padding: 16px; margin: 0 0 22px; display: grid; gap: 12px; background: var(--warm); border: 1px solid var(--border); border-radius: 12px; }
+.how-list li { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.45; color: var(--ink); }
+.how-list li span { font-size: 17px; flex-shrink: 0; line-height: 1.2; }
 
 h1, h2 { font-family: var(--serif); font-weight: 500; color: var(--ink); }
 
