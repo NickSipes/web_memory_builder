@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import RelationSelect from "../components/RelationSelect"
+import EventAndRsvp from "../components/EventAndRsvp"
 
 export default function Landing() {
     const [name, setName] = useState<string>("")
@@ -15,9 +16,11 @@ export default function Landing() {
     }
 
     return (
-        <div className="panel">
-            <div className="hero-label">80th Birthday Celebration</div>
-            <h1 className="hero-title">Leave a message<br />for Jerry Sipes</h1>
+        <div className="page-stack">
+            <EventAndRsvp />
+
+            <div className="panel">
+            <h2 className="hero-title" style={{ fontSize: 28 }}>Leave a message<br />for Jerry Sipes</h2>
             <p className="hero-subtitle">Record a short video or share a few photos to celebrate his 80th birthday.</p>
 
             <ul className="how-list">
@@ -46,6 +49,8 @@ export default function Landing() {
                 {['#E8C97A', '#C9963A', '#E8C97A', '#C9963A', '#E8C97A'].map((c, i) => (
                     <div key={i} className="confetti-dot" style={{ background: c }} />
                 ))}
+            </div>
+
             </div>
 
             <Link to="/admin" className="admin-fab">Admin</Link>

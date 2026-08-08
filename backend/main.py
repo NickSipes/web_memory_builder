@@ -7,8 +7,8 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from database import SessionLocal, engine
-from models import Submission
-from schemas import SubmissionCreate, SubmissionResponse
+from models import Submission, Rsvp
+from schemas import SubmissionCreate, SubmissionResponse, RsvpCreate, RsvpResponse
 import models
 
 from pydantic import BaseModel
@@ -119,3 +119,36 @@ def get_presigned_url(body: PresignedRequest):
     and the key where the file will live once uploaded.
     """
     return generate_presigned_put(body.filename, body.content_type)
+
+
+# --- RSVPs ----------------------------------------------------------------
+def _rsvp_out(r: Rsvp) -> RsvpResponse:
+    return RsvpResponse(
+        id=r.id, name=r.name, contact=r.contact, attending=r.attending,
+        dietary=[d for d in (r.dietary or "").split(",") if d],
+        created_at=r.created_at,
+    )
+
+@app.post("/rsvps", response_model=RsvpResponse)
+def create_rsvp(body: RsvpCreate, db: Session = Depends(get_db)):
+    record = Rsvp(
+        name=body.name, contact=body.contact, attending=body.attending,
+        dietary=",".join(body.dietary) or None,
+    )
+    db.add(record)
+    db.commit()
+    db.refresh(record)
+    return _rsvp_out(record)
+
+@app.get("/admin/rsvps", response_model=List[RsvpResponse])
+def admin_list_rsvps(db: Session = Depends(get_db), _: None = Depends(require_admin)):
+    records = db.query(Rsvp).order_by(Rsvp.created_at.desc()).all()
+    return [_rsvp_out(r) for r in records]
+
+@app.delete("/admin/rsvps/{rsvp_id}", status_code=204)
+def delete_rsvp(rsvp_id: int, db: Session = Depends(get_db), _: None = Depends(require_admin)):
+    record = db.get(Rsvp, rsvp_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="RSVP not found")
+    db.delete(record)
+    db.commit()

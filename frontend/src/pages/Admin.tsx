@@ -1,7 +1,8 @@
 import { useState } from "react"
-import type { Submission } from "../types"
-import { getAllSubmissions, approveSubmission, deleteSubmission } from "../api"
+import type { Submission, Rsvp } from "../types"
+import { getAllSubmissions, approveSubmission, deleteSubmission, getRsvps, deleteRsvp } from "../api"
 import { downloadZip } from "../lib/download"
+import { downloadRsvpCsv } from "../lib/download"
 
 // Media preview so the admin can review before approving.
 function Preview({ s }: { s: Submission }) {
@@ -23,9 +24,23 @@ export default function Admin() {
     const [confirmId, setConfirmId] = useState<number | null>(null)
     const [selected, setSelected] = useState<Set<number>>(new Set())
     const [downloading, setDownloading] = useState(false)
+    const [rsvps, setRsvps] = useState<Rsvp[]>([])
 
     async function load(c: string) {
-        setSubs(await getAllSubmissions(c))
+        const [s, r] = await Promise.all([getAllSubmissions(c), getRsvps(c)])
+        setSubs(s)
+        setRsvps(r)
+    }
+
+    async function handleDeleteRsvp(id: number) {
+        if (!creds) return
+        setError(null)
+        try {
+            await deleteRsvp(id, creds)
+            await load(creds)
+        } catch (e) {
+            setError(`Couldn't remove RSVP: ${(e as Error).message}`)
+        }
     }
 
     async function handleLogin(e: React.FormEvent) {
@@ -130,8 +145,53 @@ export default function Admin() {
                 <div className="section-label" style={{ marginTop: 28 }}>Approved ({approved.length})</div>
                 {approved.map((s) => <AdminItem key={s.id} s={s} {...itemProps} />)}
             </>}
+
+            <RsvpSection rsvps={rsvps} onDelete={handleDeleteRsvp} />
         </div>
     )
+}
+
+function RsvpSection({ rsvps, onDelete }: { rsvps: Rsvp[]; onDelete: (id: number) => void }) {
+    const [confirmId, setConfirmId] = useState<number | null>(null)
+    const attendingCount = rsvps.filter((r) => r.attending).length
+    return (
+        <div style={{ marginTop: 36 }}>
+            <div className="download-bar">
+                <span><strong>{attendingCount}</strong> attending · {rsvps.length} RSVP{rsvps.length === 1 ? '' : 's'}</span>
+                {rsvps.length > 0 && (
+                    <button className="btn-outline" style={{ width: 'auto' }} onClick={() => downloadRsvpCsv(rsvps)}>⬇ Download RSVP list (CSV)</button>
+                )}
+            </div>
+            {rsvps.length === 0 && <p className="empty">No RSVPs yet.</p>}
+            {rsvps.map((r) => (
+                <div key={r.id} className="admin-item">
+                    <div className="admin-head">
+                        <div className="admin-who"><strong>{r.name}</strong> · <a href={contactHref(r.contact)}>{r.contact}</a></div>
+                        <span className={`badge ${r.attending ? 'badge-approved' : 'badge-pending'}`}>{r.attending ? 'Attending' : 'Not attending'}</span>
+                    </div>
+                    {r.dietary.length > 0 && <p className="muted" style={{ fontSize: 13 }}>Dietary: {r.dietary.join(', ')}</p>}
+                    <div className="admin-actions">
+                        {confirmId === r.id ? (
+                            <>
+                                <span className="muted" style={{ alignSelf: 'center', fontSize: 13 }}>Remove this RSVP?</span>
+                                <button className="btn-danger" onClick={() => { onDelete(r.id); setConfirmId(null) }}>Yes, remove</button>
+                                <button className="btn-ghost" onClick={() => setConfirmId(null)}>Cancel</button>
+                            </>
+                        ) : (
+                            <button className="btn-danger" onClick={() => setConfirmId(r.id)}>🗑 Remove</button>
+                        )}
+                    </div>
+                </div>
+            ))}
+        </div>
+    )
+}
+
+// mailto: / tel: link if the contact looks like an email or phone
+function contactHref(contact: string): string {
+    if (contact.includes('@')) return `mailto:${contact}`
+    const digits = contact.replace(/[^0-9+]/g, '')
+    return digits.length >= 7 ? `tel:${digits}` : '#'
 }
 
 function AdminItem({ s, confirmId, setConfirmId, onApprove, onDelete, selected, onToggleSelect }: {

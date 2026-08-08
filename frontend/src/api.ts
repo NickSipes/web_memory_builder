@@ -1,4 +1,4 @@
-import type { Submission, PresignedResponse, SubmissionCreate } from './types'
+import type { Submission, PresignedResponse, SubmissionCreate, Rsvp, RsvpCreate } from './types'
 
 // Prod points at the deployed API via VITE_API_URL; in dev this is unset and
 // Vite proxies /api to localhost:8000 (see vite.config.ts)
@@ -57,4 +57,32 @@ export async function deleteSubmission(id: number, creds: string): Promise<void>
         headers: { Authorization: `Basic ${creds}` },
     })
     if (!res.ok) throw new Error(`Failed to delete: ${res.status}`)
+}
+
+// --- RSVPs ----------------------------------------------------------------
+export async function createRsvp(data: RsvpCreate): Promise<Rsvp> {
+    const res = await fetch(`${BASE}/rsvps`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    })
+    if (!res.ok) throw new Error(`Failed to send RSVP: ${res.status}`)
+    return res.json()
+}
+
+export async function getRsvps(creds: string): Promise<Rsvp[]> {
+    const res = await fetch(`${BASE}/admin/rsvps`, {
+        headers: { Authorization: `Basic ${creds}` },
+    })
+    if (res.status === 401) throw new Error('Unauthorized')
+    if (!res.ok) throw new Error(`Failed to fetch RSVPs: ${res.status}`)
+    return res.json()
+}
+
+export async function deleteRsvp(id: number, creds: string): Promise<void> {
+    const res = await fetch(`${BASE}/admin/rsvps/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Basic ${creds}` },
+    })
+    if (!res.ok) throw new Error(`Failed to delete RSVP: ${res.status}`)
 }

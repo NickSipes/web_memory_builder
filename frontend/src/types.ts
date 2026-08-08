@@ -26,3 +26,19 @@ export interface SubmissionCreate {
     s3_key?: string;
     content?: string;
 }
+
+export interface Rsvp {
+    id: number;
+    name: string;
+    contact: string;        // email or phone
+    attending: boolean;
+    dietary: string[];
+    created_at: string;
+}
+
+export interface RsvpCreate {
+    name: string;
+    contact: string;
+    attending: boolean;
+    dietary: string[];
+}

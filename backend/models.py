@@ -13,3 +13,14 @@ class Submission(Base):
     content = Column(Text, nullable=True) # text notes only
     created_at = Column(DateTime, default=datetime.utcnow)
     approved = Column(Boolean, nullable=False, default=False) # admin confirms before it's public
+
+
+class Rsvp(Base):
+    __tablename__ = "rsvps"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    contact = Column(String, nullable=False)   # email or phone
+    attending = Column(Boolean, nullable=False, default=True)
+    dietary = Column(String, nullable=True)    # comma-joined restrictions, e.g. "No meat,Nut allergy"
+    created_at = Column(DateTime, default=datetime.utcnow)
