@@ -17,10 +17,8 @@ export default function Landing() {
 
     return (
         <div className="page-stack">
-            <EventAndRsvp />
-
             <div className="panel">
-            <h2 className="hero-title" style={{ fontSize: 28 }}>Leave a message<br />for Jerry Sipes</h2>
+            <h1 className="hero-title">Leave a message<br />for Jerry Sipes</h1>
             <p className="hero-subtitle">Record a short video or share a few photos to celebrate his 80th birthday.</p>
 
             <ul className="how-list">
@@ -52,6 +50,8 @@ export default function Landing() {
             </div>
 
             </div>
+
+            <EventAndRsvp />
 
             <Link to="/admin" className="admin-fab">Admin</Link>
         </div>

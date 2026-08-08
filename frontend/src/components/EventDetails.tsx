@@ -19,9 +19,6 @@ export default function EventDetails() {
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
             />
-            <a className="btn-outline" href={MAP_LINK_URL} target="_blank" rel="noopener noreferrer">
-                Open in Google Maps ↗
-            </a>
         </div>
     )
 }
