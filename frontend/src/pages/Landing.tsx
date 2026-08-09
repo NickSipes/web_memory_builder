@@ -18,8 +18,9 @@ export default function Landing() {
     return (
         <div className="page-stack">
             <div className="panel">
+            <div className="hero-label">Jerry Sipes is turning 80 this year</div>
             <h1 className="hero-title">Leave a message<br />for Jerry Sipes</h1>
-            <p className="hero-subtitle">Record a short video or share a few photos to celebrate his 80th birthday.</p>
+            <p className="hero-subtitle">Record a short video or share a few photos to celebrate his 80th birthday — then RSVP just below.</p>
 
             <ul className="how-list">
                 <li><span>🎥</span> All videos will be compiled into one keepsake film we'll play at his party.</li>

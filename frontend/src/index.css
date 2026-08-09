@@ -50,6 +50,7 @@ body { margin: 0; background: var(--cream); min-height: 100svh; }
 /* --- Layout helpers --- */
 .page-stack > * + * { margin-top: 18px; }
 .section-heading { font-family: var(--serif); font-size: 24px; color: var(--ink); margin-bottom: 4px; }
+.divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
 
 /* --- Event details --- */
 .event-details { display: grid; gap: 14px; }
