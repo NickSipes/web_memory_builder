@@ -26,11 +26,13 @@ export async function downloadZip(items: Submission[], filename = 'jerry-message
 // Exports the RSVP list as a CSV the honoree can hand to the caterer.
 export function downloadRsvpCsv(rsvps: Rsvp[], filename = 'jerry-rsvps.csv') {
     const rows = [
-        ['Name', 'Contact', 'Attending', 'Dietary', 'RSVP date'],
+        ['Name', 'Contact', 'Attending', 'Additional guests', 'Party size', 'Dietary', 'RSVP date'],
         ...rsvps.map((r) => [
             r.name,
             r.contact,
             r.attending ? 'Yes' : 'No',
+            String(r.attending ? r.guests : 0),
+            String(r.attending ? r.guests + 1 : 0),
             r.dietary.join('; '),
             new Date(r.created_at).toLocaleDateString(),
         ]),

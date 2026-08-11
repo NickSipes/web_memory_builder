@@ -125,6 +125,7 @@ def get_presigned_url(body: PresignedRequest):
 def _rsvp_out(r: Rsvp) -> RsvpResponse:
     return RsvpResponse(
         id=r.id, name=r.name, contact=r.contact, attending=r.attending,
+        guests=r.guests or 0,
         dietary=[d for d in (r.dietary or "").split(",") if d],
         created_at=r.created_at,
     )
@@ -133,6 +134,7 @@ def _rsvp_out(r: Rsvp) -> RsvpResponse:
 def create_rsvp(body: RsvpCreate, db: Session = Depends(get_db)):
     record = Rsvp(
         name=body.name, contact=body.contact, attending=body.attending,
+        guests=max(0, body.guests),
         dietary=",".join(body.dietary) or None,
     )
     db.add(record)

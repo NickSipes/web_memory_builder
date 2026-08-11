@@ -29,10 +29,11 @@ describe('RsvpForm', () => {
         render(<RsvpForm />)
         await userEvent.type(screen.getByLabelText('Full name'), 'Aunt May')
         await userEvent.type(screen.getByLabelText('Email or phone'), '555-1234')
+        await userEvent.selectOptions(screen.getByLabelText("Additional guests you're bringing"), '2')
         await userEvent.click(screen.getByLabelText('Nut allergy'))
         await userEvent.click(screen.getByRole('button', { name: /Send RSVP/ }))
         await waitFor(() => expect(screen.getByText(/Thank you, Aunt May/)).toBeInTheDocument())
-        expect(lastBody).toEqual({ name: 'Aunt May', contact: '555-1234', attending: true, dietary: ['Nut allergy'] })
+        expect(lastBody).toEqual({ name: 'Aunt May', contact: '555-1234', attending: true, guests: 2, dietary: ['Nut allergy'] })
     })
 
     it('drops dietary choices when not attending', async () => {
@@ -42,6 +43,6 @@ describe('RsvpForm', () => {
         await userEvent.click(screen.getByRole('button', { name: /Can't make it/ }))
         await userEvent.click(screen.getByRole('button', { name: /Send RSVP/ }))
         await waitFor(() => expect(screen.getByText(/Thank you, Bob/)).toBeInTheDocument())
-        expect(lastBody).toEqual({ name: 'Bob', contact: 'bob@x.com', attending: false, dietary: [] })
+        expect(lastBody).toEqual({ name: 'Bob', contact: 'bob@x.com', attending: false, guests: 0, dietary: [] })
     })
 })

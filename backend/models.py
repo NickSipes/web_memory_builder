@@ -22,5 +22,6 @@ class Rsvp(Base):
     name = Column(String, nullable=False)
     contact = Column(String, nullable=False)   # email or phone
     attending = Column(Boolean, nullable=False, default=True)
+    guests = Column(Integer, nullable=False, default=0)   # additional people beyond themselves
     dietary = Column(String, nullable=True)    # comma-joined restrictions, e.g. "No meat,Nut allergy"
     created_at = Column(DateTime, default=datetime.utcnow)

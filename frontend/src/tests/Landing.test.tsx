@@ -20,7 +20,7 @@ describe('Landing', () => {
     it('renders name input and relation select', () => {
         setup()
         expect(screen.getByLabelText('Your name')).toBeInTheDocument()
-        expect(screen.getByRole('combobox')).toBeInTheDocument()
+        expect(screen.getByRole('combobox', { name: /relation to Jerry/i })).toBeInTheDocument()
     })
 
     it('continue button is disabled when fields are empty', () => {
@@ -31,21 +31,21 @@ describe('Landing', () => {
     it('continue button enables when both fields filled', async () => {
         setup()
         await userEvent.type(screen.getByLabelText('Your name'), 'Alice')
-        await userEvent.selectOptions(screen.getByRole('combobox'), 'Daughter')
+        await userEvent.selectOptions(screen.getByRole('combobox', { name: /relation to Jerry/i }), 'Daughter')
         expect(screen.getByRole('button', { name: /Continue/ })).toBeEnabled()
     })
 
     it('spaces-only name keeps button disabled', async () => {
         setup()
         await userEvent.type(screen.getByLabelText('Your name'), '   ')
-        await userEvent.selectOptions(screen.getByRole('combobox'), 'Daughter')
+        await userEvent.selectOptions(screen.getByRole('combobox', { name: /relation to Jerry/i }), 'Daughter')
         expect(screen.getByRole('button', { name: /Continue/ })).toBeDisabled()
     })
 
     it('navigates to /record with name and relation on submit', async () => {
         setup()
         await userEvent.type(screen.getByLabelText('Your name'), '  Alice  ')
-        await userEvent.selectOptions(screen.getByRole('combobox'), 'Daughter')
+        await userEvent.selectOptions(screen.getByRole('combobox', { name: /relation to Jerry/i }), 'Daughter')
         await userEvent.click(screen.getByRole('button', { name: /Continue/ }))
         expect(navigate).toHaveBeenCalledWith('/record', {
             state: { name: 'Alice', relation: 'Daughter' },

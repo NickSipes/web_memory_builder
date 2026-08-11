@@ -6,6 +6,7 @@ export default function RsvpForm() {
     const [name, setName] = useState('')
     const [contact, setContact] = useState('')
     const [attending, setAttending] = useState(true)
+    const [guests, setGuests] = useState(0)
     const [dietary, setDietary] = useState<Set<string>>(new Set())
     const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
     const [error, setError] = useState<string | null>(null)
@@ -30,6 +31,7 @@ export default function RsvpForm() {
                 name: name.trim(),
                 contact: contact.trim(),
                 attending,
+                guests: attending ? guests : 0,
                 dietary: attending ? [...dietary] : [],
             })
             setStatus('done')
@@ -44,7 +46,9 @@ export default function RsvpForm() {
             <div className="rsvp-thanks">
                 <div style={{ fontSize: 40 }}>🎉</div>
                 <p><strong>Thank you, {name.trim()}!</strong></p>
-                <p className="muted">{attending ? "We can't wait to celebrate with you." : "Sorry you can't make it — thanks for letting us know."}</p>
+                <p className="muted">{attending
+                    ? `We can't wait to celebrate with ${guests > 0 ? `all ${guests + 1} of you` : 'you'}.`
+                    : "Sorry you can't make it — thanks for letting us know."}</p>
             </div>
         )
     }
@@ -62,6 +66,17 @@ export default function RsvpForm() {
                 <button type="button" className={`toggle-opt${attending ? ' active' : ''}`} onClick={() => setAttending(true)}>Yes, I'll be there</button>
                 <button type="button" className={`toggle-opt${!attending ? ' active' : ''}`} onClick={() => setAttending(false)}>Can't make it</button>
             </div>
+
+            {attending && (
+                <label htmlFor="rsvp-guests">Additional guests you're bringing</label>
+            )}
+            {attending && (
+                <select id="rsvp-guests" value={guests} onChange={(e) => setGuests(Number(e.target.value))}>
+                    {Array.from({ length: 11 }, (_, n) => (
+                        <option key={n} value={n}>{n === 0 ? 'Just me' : `+${n} guest${n === 1 ? '' : 's'}`}</option>
+                    ))}
+                </select>
+            )}
 
             {attending && (
                 <fieldset className="diet-set">

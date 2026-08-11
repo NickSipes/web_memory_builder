@@ -32,6 +32,7 @@ export interface Rsvp {
     name: string;
     contact: string;        // email or phone
     attending: boolean;
+    guests: number;         // additional people beyond themselves
     dietary: string[];
     created_at: string;
 }
@@ -40,5 +41,6 @@ export interface RsvpCreate {
     name: string;
     contact: string;
     attending: boolean;
+    guests: number;
     dietary: string[];
 }

@@ -28,6 +28,7 @@ class RsvpCreate(BaseModel):
     name:      str
     contact:   str                 # email or phone
     attending: bool = True
+    guests:    int = 0              # additional people beyond themselves
     dietary:   List[str] = []       # selected restrictions
 
 class RsvpResponse(BaseModel):
@@ -35,6 +36,7 @@ class RsvpResponse(BaseModel):
     name:       str
     contact:    str
     attending:  bool
+    guests:     int = 0
     dietary:    List[str] = []
     created_at: datetime
 

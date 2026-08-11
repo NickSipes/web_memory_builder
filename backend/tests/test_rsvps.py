@@ -4,19 +4,21 @@ ADMIN = ("admin", "katienick")
 def test_create_rsvp(client):
     r = client.post("/rsvps", json={
         "name": "Aunt May", "contact": "may@example.com",
-        "attending": True, "dietary": ["No meat", "Nut allergy"],
+        "attending": True, "guests": 2, "dietary": ["No meat", "Nut allergy"],
     })
     assert r.status_code == 200
     body = r.json()
     assert body["name"] == "Aunt May"
     assert body["dietary"] == ["No meat", "Nut allergy"]
     assert body["attending"] is True
+    assert body["guests"] == 2
 
 
 def test_create_rsvp_minimal(client):
     r = client.post("/rsvps", json={"name": "Bob", "contact": "555-1234"})
     assert r.status_code == 200
     assert r.json()["attending"] is True      # defaults to attending
+    assert r.json()["guests"] == 0            # defaults to no extra guests
     assert r.json()["dietary"] == []
 
 

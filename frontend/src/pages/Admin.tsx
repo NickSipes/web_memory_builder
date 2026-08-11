@@ -153,11 +153,12 @@ export default function Admin() {
 
 function RsvpSection({ rsvps, onDelete }: { rsvps: Rsvp[]; onDelete: (id: number) => void }) {
     const [confirmId, setConfirmId] = useState<number | null>(null)
-    const attendingCount = rsvps.filter((r) => r.attending).length
+    // total headcount = each attending person plus the extra guests they bring
+    const headcount = rsvps.filter((r) => r.attending).reduce((sum, r) => sum + 1 + r.guests, 0)
     return (
         <div style={{ marginTop: 36 }}>
             <div className="download-bar">
-                <span><strong>{attendingCount}</strong> attending · {rsvps.length} RSVP{rsvps.length === 1 ? '' : 's'}</span>
+                <span><strong>{headcount}</strong> attending · {rsvps.length} RSVP{rsvps.length === 1 ? '' : 's'}</span>
                 {rsvps.length > 0 && (
                     <button className="btn-outline" style={{ width: 'auto' }} onClick={() => downloadRsvpCsv(rsvps)}>⬇ Download RSVP list (CSV)</button>
                 )}
@@ -166,8 +167,10 @@ function RsvpSection({ rsvps, onDelete }: { rsvps: Rsvp[]; onDelete: (id: number
             {rsvps.map((r) => (
                 <div key={r.id} className="admin-item">
                     <div className="admin-head">
-                        <div className="admin-who"><strong>{r.name}</strong> · <a href={contactHref(r.contact)}>{r.contact}</a></div>
-                        <span className={`badge ${r.attending ? 'badge-approved' : 'badge-pending'}`}>{r.attending ? 'Attending' : 'Not attending'}</span>
+                        <div className="admin-who">
+                            <strong>{r.name}</strong>{r.attending && r.guests > 0 && <span className="muted"> +{r.guests}</span>} · <a href={contactHref(r.contact)}>{r.contact}</a>
+                        </div>
+                        <span className={`badge ${r.attending ? 'badge-approved' : 'badge-pending'}`}>{r.attending ? `Party of ${r.guests + 1}` : 'Not attending'}</span>
                     </div>
                     {r.dietary.length > 0 && <p className="muted" style={{ fontSize: 13 }}>Dietary: {r.dietary.join(', ')}</p>}
                     <div className="admin-actions">
