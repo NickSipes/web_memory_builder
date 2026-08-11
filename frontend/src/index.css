@@ -72,6 +72,10 @@ body { margin: 0; background: var(--cream); min-height: 100svh; }
 }
 .section-label { font-size: 11px; font-weight: 500; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .12em; margin-bottom: 10px; }
 
+/* --- Page hero (top of landing / rsvp) --- */
+.hero { text-align: center; max-width: 560px; margin: 4px auto 2px; }
+.hero .hero-subtitle { margin-bottom: 0; }
+
 /* --- Hero / headings --- */
 .hero-label { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; font-weight: 500; }
 .hero-title { font-family: var(--serif); font-size: 32px; line-height: 1.15; color: var(--ink); margin: 0 0 8px; }

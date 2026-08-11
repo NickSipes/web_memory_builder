@@ -10,10 +10,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <nav className="nav">
-        <NavLink to="/" className="nav-brand">Wish Jerry Sipes a Happy Birthday 🎂</NavLink>
+        <NavLink to="/" className="nav-brand">Jerry Sipes' 80th 🎂</NavLink>
         <div className="nav-tabs">
           <NavLink to="/" end className={({ isActive }) => `nav-tab${isActive ? ' active' : ''}`}>Leave a message</NavLink>
-          <NavLink to="/rsvp" className={({ isActive }) => `nav-tab${isActive ? ' active' : ''}`}>Event & RSVP</NavLink>
+          <NavLink to="/rsvp" className={({ isActive }) => `nav-tab${isActive ? ' active' : ''}`}>RSVP</NavLink>
           <NavLink to="/browse" className={({ isActive }) => `nav-tab${isActive ? ' active' : ''}`}>Browse messages</NavLink>
         </div>
       </nav>

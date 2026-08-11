@@ -2,6 +2,8 @@
 export const EVENT = {
     title: "Jerry Sipes' 80th Birthday",
     date: "Saturday, October 17, 2026",
+    shortDate: "October 17, 2026",
+    city: "Eloy, AZ",
     time: "5:00 – 9:00 PM",
     venue: "St. Helen's of the Cross — Parish Hall",
     address: "205 W 8th St, Eloy, AZ 85231",
