@@ -17,18 +17,25 @@ describe('RsvpForm', () => {
     beforeEach(() => installFetch())
     afterEach(() => { vi.unstubAllGlobals(); cleanup() })
 
-    it('disables send until name and contact are filled', async () => {
+    it('needs only a name to send — contact is optional', async () => {
         render(<RsvpForm />)
         expect(screen.getByRole('button', { name: /Send RSVP/ })).toBeDisabled()
         await userEvent.type(screen.getByLabelText('Full name'), 'Aunt May')
-        await userEvent.type(screen.getByLabelText('Email or phone'), 'may@example.com')
         expect(screen.getByRole('button', { name: /Send RSVP/ })).toBeEnabled()
+    })
+
+    it('submits with an empty contact', async () => {
+        render(<RsvpForm />)
+        await userEvent.type(screen.getByLabelText('Full name'), 'No Contact')
+        await userEvent.click(screen.getByRole('button', { name: /Send RSVP/ }))
+        await waitFor(() => expect(screen.getByText(/Thank you, No Contact/)).toBeInTheDocument())
+        expect(lastBody).toMatchObject({ name: 'No Contact', contact: '' })
     })
 
     it('submits name, contact, attending, and dietary choices', async () => {
         render(<RsvpForm />)
         await userEvent.type(screen.getByLabelText('Full name'), 'Aunt May')
-        await userEvent.type(screen.getByLabelText('Email or phone'), '555-1234')
+        await userEvent.type(screen.getByLabelText(/Email or phone/), '555-1234')
         await userEvent.selectOptions(screen.getByLabelText("Additional guests you're bringing"), '2')
         await userEvent.click(screen.getByLabelText('Nut allergy'))
         await userEvent.click(screen.getByRole('button', { name: /Send RSVP/ }))
@@ -39,7 +46,7 @@ describe('RsvpForm', () => {
     it('drops dietary choices when not attending', async () => {
         render(<RsvpForm />)
         await userEvent.type(screen.getByLabelText('Full name'), 'Bob')
-        await userEvent.type(screen.getByLabelText('Email or phone'), 'bob@x.com')
+        await userEvent.type(screen.getByLabelText(/Email or phone/), 'bob@x.com')
         await userEvent.click(screen.getByRole('button', { name: /Can't make it/ }))
         await userEvent.click(screen.getByRole('button', { name: /Send RSVP/ }))
         await waitFor(() => expect(screen.getByText(/Thank you, Bob/)).toBeInTheDocument())

@@ -44,3 +44,10 @@ export interface RsvpCreate {
     guests: number;
     dietary: string[];
 }
+
+export interface BugReport {
+    id: number;
+    name: string | null;
+    description: string;
+    created_at: string;
+}

@@ -56,7 +56,20 @@ export function useUpload() {
     const submitVideo = (args: SubmitMediaArgs) => submitMedia('video', args)
     const submitPhoto = (args: SubmitMediaArgs) => submitMedia('photo', args)
 
-    return { ...state, submitVideo, submitPhoto }
+    // A written note on its own — no upload, straight to Postgres.
+    async function submitNote({ name, relation, note }: { name: string; relation: string; note: string }): Promise<boolean> {
+        setState({ status: 'saving', progress: 0, error: null })
+        try {
+            await createSubmission({ name, relation, type: 'note', content: note.trim() })
+            setState({ status: 'done', progress: 100, error: null })
+            return true
+        } catch (err) {
+            setState({ status: 'error', progress: 0, error: (err as Error).message })
+            return false
+        }
+    }
+
+    return { ...state, submitVideo, submitPhoto, submitNote }
 }
 
 // Kept outside the hook since it isn't stateful

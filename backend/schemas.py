@@ -26,7 +26,7 @@ class SubmissionResponse(BaseModel):
 
 class RsvpCreate(BaseModel):
     name:      str
-    contact:   str                 # email or phone
+    contact:   str = ""            # email or phone — optional
     attending: bool = True
     guests:    int = 0              # additional people beyond themselves
     dietary:   List[str] = []       # selected restrictions
@@ -34,11 +34,25 @@ class RsvpCreate(BaseModel):
 class RsvpResponse(BaseModel):
     id:         int
     name:       str
-    contact:    str
+    contact:    str = ""
     attending:  bool
     guests:     int = 0
     dietary:    List[str] = []
     created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class BugReportCreate(BaseModel):
+    name:        Optional[str] = None
+    description: str
+
+class BugReportResponse(BaseModel):
+    id:          int
+    name:        Optional[str] = None
+    description: str
+    created_at:  datetime
 
     class Config:
         from_attributes = True

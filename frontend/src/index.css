@@ -199,6 +199,11 @@ button { font-family: var(--sans); cursor: pointer; }
 .admin-media img, .admin-media video { width: 100%; display: block; }
 .admin-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
+/* --- Site footer --- */
+.site-footer { text-align: center; padding: 28px 0 8px; }
+.site-footer a { color: var(--ink-muted); font-size: 13px; text-decoration: none; }
+.site-footer a:hover { color: var(--gold); }
+
 /* --- Admin floating button (home page) --- */
 .admin-fab {
   position: fixed; bottom: 20px; right: 20px; z-index: 10;

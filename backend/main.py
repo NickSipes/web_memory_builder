@@ -7,8 +7,11 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from database import SessionLocal, engine
-from models import Submission, Rsvp
-from schemas import SubmissionCreate, SubmissionResponse, RsvpCreate, RsvpResponse
+from models import Submission, Rsvp, BugReport
+from schemas import (
+    SubmissionCreate, SubmissionResponse, RsvpCreate, RsvpResponse,
+    BugReportCreate, BugReportResponse,
+)
 import models
 
 from pydantic import BaseModel
@@ -152,5 +155,27 @@ def delete_rsvp(rsvp_id: int, db: Session = Depends(get_db), _: None = Depends(r
     record = db.get(Rsvp, rsvp_id)
     if not record:
         raise HTTPException(status_code=404, detail="RSVP not found")
+    db.delete(record)
+    db.commit()
+
+
+# --- Bug reports ----------------------------------------------------------
+@app.post("/bug-reports", response_model=BugReportResponse)
+def create_bug_report(body: BugReportCreate, db: Session = Depends(get_db)):
+    record = BugReport(name=(body.name or None), description=body.description)
+    db.add(record)
+    db.commit()
+    db.refresh(record)
+    return record
+
+@app.get("/admin/bug-reports", response_model=List[BugReportResponse])
+def admin_list_bug_reports(db: Session = Depends(get_db), _: None = Depends(require_admin)):
+    return db.query(BugReport).order_by(BugReport.created_at.desc()).all()
+
+@app.delete("/admin/bug-reports/{report_id}", status_code=204)
+def delete_bug_report(report_id: int, db: Session = Depends(get_db), _: None = Depends(require_admin)):
+    record = db.get(BugReport, report_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Bug report not found")
     db.delete(record)
     db.commit()

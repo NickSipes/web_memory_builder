@@ -1,10 +1,11 @@
-import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
+import { BrowserRouter, Routes, Route, NavLink, Link } from "react-router-dom";
 import Landing from './pages/Landing'
 import Browse from './pages/Browse'
 import Record from './pages/Record'
 import Confirm from './pages/Confirm'
 import Admin from './pages/Admin'
 import Rsvp from './pages/Rsvp'
+import ReportBug from './pages/ReportBug'
 
 export default function App() {
   return (
@@ -25,7 +26,12 @@ export default function App() {
         <Route path="/record" element={<Record />} />
         <Route path="/confirm" element={<Confirm />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/report-bug" element={<ReportBug />} />
       </Routes>
+
+      <footer className="site-footer">
+        <Link to="/report-bug">🐞 Report a bug</Link>
+      </footer>
     </BrowserRouter>
   )
 }

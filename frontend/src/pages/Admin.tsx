@@ -1,6 +1,6 @@
 import { useState } from "react"
-import type { Submission, Rsvp } from "../types"
-import { getAllSubmissions, approveSubmission, deleteSubmission, getRsvps, deleteRsvp } from "../api"
+import type { Submission, Rsvp, BugReport } from "../types"
+import { getAllSubmissions, approveSubmission, deleteSubmission, getRsvps, deleteRsvp, getBugReports, deleteBugReport } from "../api"
 import { downloadZip } from "../lib/download"
 import { downloadRsvpCsv } from "../lib/download"
 
@@ -25,11 +25,24 @@ export default function Admin() {
     const [selected, setSelected] = useState<Set<number>>(new Set())
     const [downloading, setDownloading] = useState(false)
     const [rsvps, setRsvps] = useState<Rsvp[]>([])
+    const [bugs, setBugs] = useState<BugReport[]>([])
 
     async function load(c: string) {
-        const [s, r] = await Promise.all([getAllSubmissions(c), getRsvps(c)])
+        const [s, r, b] = await Promise.all([getAllSubmissions(c), getRsvps(c), getBugReports(c)])
         setSubs(s)
         setRsvps(r)
+        setBugs(b)
+    }
+
+    async function handleDeleteBug(id: number) {
+        if (!creds) return
+        setError(null)
+        try {
+            await deleteBugReport(id, creds)
+            await load(creds)
+        } catch (e) {
+            setError(`Couldn't remove report: ${(e as Error).message}`)
+        }
     }
 
     async function handleDeleteRsvp(id: number) {
@@ -147,6 +160,39 @@ export default function Admin() {
             </>}
 
             <RsvpSection rsvps={rsvps} onDelete={handleDeleteRsvp} />
+            <BugSection bugs={bugs} onDelete={handleDeleteBug} />
+        </div>
+    )
+}
+
+function BugSection({ bugs, onDelete }: { bugs: BugReport[]; onDelete: (id: number) => void }) {
+    const [confirmId, setConfirmId] = useState<number | null>(null)
+    return (
+        <div style={{ marginTop: 36 }}>
+            <div className="section-label">Bug reports ({bugs.length})</div>
+            {bugs.length === 0 && <p className="empty">No bug reports.</p>}
+            {bugs.map((b) => (
+                <div key={b.id} className="admin-item">
+                    <div className="admin-head">
+                        <div className="admin-who">
+                            <strong>{b.name || 'Anonymous'}</strong>
+                            <span className="muted"> · {new Date(b.created_at).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                    <p style={{ whiteSpace: 'pre-wrap' }}>{b.description}</p>
+                    <div className="admin-actions">
+                        {confirmId === b.id ? (
+                            <>
+                                <span className="muted" style={{ alignSelf: 'center', fontSize: 13 }}>Remove this report?</span>
+                                <button className="btn-danger" onClick={() => { onDelete(b.id); setConfirmId(null) }}>Yes, remove</button>
+                                <button className="btn-ghost" onClick={() => setConfirmId(null)}>Cancel</button>
+                            </>
+                        ) : (
+                            <button className="btn-danger" onClick={() => setConfirmId(b.id)}>🗑 Remove</button>
+                        )}
+                    </div>
+                </div>
+            ))}
         </div>
     )
 }
@@ -168,7 +214,10 @@ function RsvpSection({ rsvps, onDelete }: { rsvps: Rsvp[]; onDelete: (id: number
                 <div key={r.id} className="admin-item">
                     <div className="admin-head">
                         <div className="admin-who">
-                            <strong>{r.name}</strong>{r.attending && r.guests > 0 && <span className="muted"> +{r.guests}</span>} · <a href={contactHref(r.contact)}>{r.contact}</a>
+                            <strong>{r.name}</strong>{r.attending && r.guests > 0 && <span className="muted"> +{r.guests}</span>}
+                            {r.contact
+                                ? <> · <a href={contactHref(r.contact)}>{r.contact}</a></>
+                                : <span className="muted"> · no contact</span>}
                         </div>
                         <span className={`badge ${r.attending ? 'badge-approved' : 'badge-pending'}`}>{r.attending ? `Party of ${r.guests + 1}` : 'Not attending'}</span>
                     </div>

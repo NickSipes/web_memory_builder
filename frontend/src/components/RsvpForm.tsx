@@ -19,7 +19,7 @@ export default function RsvpForm() {
         })
     }
 
-    const canSend = name.trim() && contact.trim() && status !== 'sending'
+    const canSend = name.trim() && status !== 'sending'   // contact is optional
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
@@ -58,7 +58,7 @@ export default function RsvpForm() {
             <label htmlFor="rsvp-name">Full name</label>
             <input id="rsvp-name" type="text" placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} />
 
-            <label htmlFor="rsvp-contact">Email or phone</label>
+            <label htmlFor="rsvp-contact">Email or phone (optional)</label>
             <input id="rsvp-contact" type="text" placeholder="Email or phone" value={contact} onChange={(e) => setContact(e.target.value)} />
 
             <label>Will you attend?</label>

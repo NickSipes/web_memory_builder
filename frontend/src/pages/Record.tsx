@@ -4,12 +4,13 @@ import VideoRecorder from "../components/VideoRecorder";
 import PhotoCapture from "../components/PhotoCapture";
 import { useUpload } from "../hooks/useUpload";
 
-type Mode = 'record-video' | 'take-photo' | 'upload-video' | 'upload-photo'
+type Mode = 'record-video' | 'take-photo' | 'upload-video' | 'upload-photo' | 'write-note'
 const MODES: { id: Mode; label: string }[] = [
     { id: 'record-video', label: '📹 Record video' },
     { id: 'take-photo', label: '📸 Take photo' },
     { id: 'upload-video', label: '⬆️ Upload video' },
     { id: 'upload-photo', label: '🖼 Upload photo' },
+    { id: 'write-note', label: '✍️ Write a note' },
 ]
 
 export default function Record() {
@@ -21,13 +22,13 @@ export default function Record() {
     const [media, setMedia] = useState<Blob | null>(null)
     const [note, setNote] = useState('')
 
-    const { status, progress, error, submitVideo, submitPhoto } = useUpload()
+    const { status, progress, error, submitVideo, submitPhoto, submitNote } = useUpload()
 
     if (!name) return <Navigate to="/" replace />
 
     const kind = mode.includes('photo') ? 'photo' : 'video'
     const isSubmitting = status === 'uploading' || status === 'saving'
-    const canSubmit = !isSubmitting && media !== null
+    const canSubmit = !isSubmitting && (mode === 'write-note' ? note.trim().length > 0 : media !== null)
 
     function chooseMode(m: Mode) {
         setMode(m)
@@ -35,9 +36,13 @@ export default function Record() {
     }
 
     async function handleSubmit() {
-        if (!media) return
-        const args = { name, relation, blob: media, note }
-        const ok = kind === 'photo' ? await submitPhoto(args) : await submitVideo(args)
+        let ok = false
+        if (mode === 'write-note') {
+            ok = await submitNote({ name, relation, note })
+        } else if (media) {
+            const args = { name, relation, blob: media, note }
+            ok = kind === 'photo' ? await submitPhoto(args) : await submitVideo(args)
+        }
         if (ok) navigate('/confirm')
     }
 
@@ -53,24 +58,34 @@ export default function Record() {
                 ))}
             </div>
 
-            {mode === 'record-video' && <VideoRecorder onVideoReady={setMedia} />}
-            {mode === 'take-photo' && <PhotoCapture onPhotoReady={setMedia} />}
-            {mode === 'upload-video' && (
-                <div>
-                    <input type="file" accept="video/*" onChange={(e) => setMedia(e.target.files?.[0] ?? null)} />
-                    {media && <p className="status">Selected: {(media as File).name}</p>}
-                </div>
-            )}
-            {mode === 'upload-photo' && (
-                <div>
-                    <input type="file" accept="image/*" onChange={(e) => setMedia(e.target.files?.[0] ?? null)} />
-                    {media && <p className="status">Selected: {(media as File).name}</p>}
-                </div>
-            )}
+            {mode === 'write-note' ? (
+                <>
+                    <label htmlFor="note">Your message to Jerry</label>
+                    <textarea id="note" value={note} onChange={(e) => setNote(e.target.value)}
+                        placeholder="Write your message to Jerry…" rows={6} />
+                </>
+            ) : (
+                <>
+                    {mode === 'record-video' && <VideoRecorder onVideoReady={setMedia} />}
+                    {mode === 'take-photo' && <PhotoCapture onPhotoReady={setMedia} />}
+                    {mode === 'upload-video' && (
+                        <div>
+                            <input type="file" accept="video/*" onChange={(e) => setMedia(e.target.files?.[0] ?? null)} />
+                            {media && <p className="status">Selected: {(media as File).name}</p>}
+                        </div>
+                    )}
+                    {mode === 'upload-photo' && (
+                        <div>
+                            <input type="file" accept="image/*" onChange={(e) => setMedia(e.target.files?.[0] ?? null)} />
+                            {media && <p className="status">Selected: {(media as File).name}</p>}
+                        </div>
+                    )}
 
-            <label htmlFor="note" style={{ marginTop: 16 }}>Add a note (optional)</label>
-            <textarea id="note" value={note} onChange={(e) => setNote(e.target.value)}
-                placeholder="Write a message to Jerry…" rows={3} />
+                    <label htmlFor="note" style={{ marginTop: 16 }}>Add a note (optional)</label>
+                    <textarea id="note" value={note} onChange={(e) => setNote(e.target.value)}
+                        placeholder="Write a message to Jerry…" rows={3} />
+                </>
+            )}
 
             {status === 'uploading' && <p className="status">Uploading… {progress}%</p>}
             {status === 'saving' && <p className="status">Saving your message…</p>}

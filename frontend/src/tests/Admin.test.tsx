@@ -19,7 +19,7 @@ function installFetch(initial: Submission[] = [NOTE]) {
         if (auth !== `Basic ${btoa('admin:katienick')}`) {
             return Promise.resolve({ ok: false, status: 401, json: () => Promise.resolve(null) })
         }
-        if (/\/admin\/rsvps$/.test(url)) {
+        if (/\/admin\/rsvps$/.test(url) || /\/admin\/bug-reports$/.test(url)) {
             return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve([]) })
         }
         const m = /\/admin\/submissions\/(\d+)\/approve$/.exec(url)

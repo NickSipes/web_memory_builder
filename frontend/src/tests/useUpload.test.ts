@@ -51,6 +51,15 @@ describe('useUpload', () => {
         expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({ content: undefined }))
     })
 
+    it('submitNote saves a note-only submission (no S3)', async () => {
+        const { result } = renderHook(() => useUpload())
+        await act(async () => {
+            await result.current.submitNote({ name: 'A', relation: 'Son', note: '  just a note ' })
+        })
+        expect(mockPresign).not.toHaveBeenCalled()
+        expect(mockCreate).toHaveBeenCalledWith({ name: 'A', relation: 'Son', type: 'note', content: 'just a note' })
+    })
+
     it('returns false and sets error on API failure', async () => {
         mockCreate.mockRejectedValue(new Error('boom'))
         const { result } = renderHook(() => useUpload())

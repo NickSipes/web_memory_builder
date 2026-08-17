@@ -22,6 +22,14 @@ def test_create_rsvp_minimal(client):
     assert r.json()["dietary"] == []
 
 
+def test_create_rsvp_without_contact(client):
+    # contact is optional — name alone is enough
+    r = client.post("/rsvps", json={"name": "Just A Name", "attending": False})
+    assert r.status_code == 200
+    assert r.json()["name"] == "Just A Name"
+    assert r.json()["contact"] == ""
+
+
 def test_rsvps_are_admin_only(client):
     client.post("/rsvps", json={"name": "Bob", "contact": "x"})
     assert client.get("/admin/rsvps").status_code == 401

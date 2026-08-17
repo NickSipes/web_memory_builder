@@ -25,3 +25,12 @@ class Rsvp(Base):
     guests = Column(Integer, nullable=False, default=0)   # additional people beyond themselves
     dietary = Column(String, nullable=True)    # comma-joined restrictions, e.g. "No meat,Nut allergy"
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class BugReport(Base):
+    __tablename__ = "bug_reports"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=True)          # optional — who reported it
+    description = Column(Text, nullable=False)     # the bug description
+    created_at = Column(DateTime, default=datetime.utcnow)

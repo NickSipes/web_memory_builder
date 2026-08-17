@@ -49,9 +49,15 @@ export async function mockBackend(page: Page, opts: { submissions?: Submission[]
         return route.fulfill({ json: { id: 1, created_at: '2026-01-01T00:00:00', ...body } })
     })
 
+    await page.route(`${API}/bug-reports`, (route) => {
+        const body = JSON.parse(route.request().postData() || '{}')
+        return route.fulfill({ json: { id: 1, name: null, created_at: '2026-01-01T00:00:00', ...body } })
+    })
+
     // admin reads (auth header present but not checked by the mock)
     await page.route(`${API}/admin/submissions`, (route) => route.fulfill({ json: subs }))
     await page.route(`${API}/admin/rsvps`, (route) => route.fulfill({ json: [] }))
+    await page.route(`${API}/admin/bug-reports`, (route) => route.fulfill({ json: [] }))
 }
 
 // Collects the console errors that actually matter (the "got HTML not JSON",
