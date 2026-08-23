@@ -52,22 +52,24 @@ describe('RsvpForm', () => {
         expect(lastBody).toEqual({ name: 'Bob', contact: 'bob@x.com', attending: false, guests: 0, dietary: [] })
     })
 
-    it('sends the selected dietary option', async () => {
+    it('sends multiple selected dietary options', async () => {
         render(<RsvpForm />)
         await userEvent.type(screen.getByLabelText('Full name'), 'Cara')
-        await userEvent.click(screen.getByRole('radio', { name: 'Shellfish' }))
+        await userEvent.click(screen.getByRole('checkbox', { name: 'Shellfish' }))
+        await userEvent.click(screen.getByRole('checkbox', { name: 'Gluten' }))
         await userEvent.click(screen.getByRole('button', { name: /Send RSVP/ }))
         await waitFor(() => expect(screen.getByText(/Thank you, Cara/)).toBeInTheDocument())
-        expect(lastBody).toMatchObject({ name: 'Cara', dietary: ['Shellfish'] })
+        expect(lastBody).toMatchObject({ name: 'Cara', dietary: ['Shellfish', 'Gluten'] })
     })
 
-    it('sends free text when "Other" is chosen', async () => {
+    it('replaces "Other" with the free text', async () => {
         render(<RsvpForm />)
         await userEvent.type(screen.getByLabelText('Full name'), 'Dee')
-        await userEvent.click(screen.getByRole('radio', { name: 'Other' }))
+        await userEvent.click(screen.getByRole('checkbox', { name: 'Dairy' }))
+        await userEvent.click(screen.getByRole('checkbox', { name: 'Other' }))
         await userEvent.type(screen.getByLabelText('Other dietary restriction'), 'Low sodium')
         await userEvent.click(screen.getByRole('button', { name: /Send RSVP/ }))
         await waitFor(() => expect(screen.getByText(/Thank you, Dee/)).toBeInTheDocument())
-        expect(lastBody).toMatchObject({ dietary: ['Low sodium'] })
+        expect(lastBody).toMatchObject({ dietary: ['Dairy', 'Low sodium'] })
     })
 })
