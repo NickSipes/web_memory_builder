@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { mockBackend, API } from './helpers'
 
-test('submit an RSVP with guests and dietary restrictions', async ({ page }) => {
+test('submit an RSVP with a guest count', async ({ page }) => {
     await mockBackend(page)
 
     // capture the request body to verify what's sent
@@ -15,12 +15,11 @@ test('submit an RSVP with guests and dietary restrictions', async ({ page }) => 
     await page.getByLabel('Full name').fill('Aunt May')
     await page.getByLabel('Email or phone').fill('may@example.com')
     await page.getByLabel("Additional guests you're bringing").selectOption('2')
-    await page.getByLabel('Nut allergy').check()
     await page.getByRole('button', { name: /Send RSVP/ }).click()
 
     await expect(page.getByText(/Thank you, Aunt May/)).toBeVisible()
     expect(sent).toEqual({
         name: 'Aunt May', contact: 'may@example.com',
-        attending: true, guests: 2, dietary: ['Nut allergy'],
+        attending: true, guests: 2, dietary: [],
     })
 })

@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, NavLink, Link } from "react-router-dom";
 import Landing from './pages/Landing'
+import Message from './pages/Message'
 import Browse from './pages/Browse'
 import Record from './pages/Record'
 import Confirm from './pages/Confirm'
@@ -13,14 +14,15 @@ export default function App() {
       <nav className="nav">
         <NavLink to="/" className="nav-brand">Jerry Sipes' 80th 🎂</NavLink>
         <div className="nav-tabs">
-          <NavLink to="/" end className={({ isActive }) => `nav-tab${isActive ? ' active' : ''}`}>Leave a message</NavLink>
-          <NavLink to="/rsvp" className={({ isActive }) => `nav-tab${isActive ? ' active' : ''}`}>RSVP</NavLink>
+          <NavLink to="/message" className={({ isActive }) => `nav-tab${isActive ? ' active' : ''}`}>Leave a message</NavLink>
+          <NavLink to="/rsvp" className={({ isActive }) => `nav-tab${isActive ? ' active' : ''}`}>Event & RSVP</NavLink>
           <NavLink to="/browse" className={({ isActive }) => `nav-tab${isActive ? ' active' : ''}`}>Browse messages</NavLink>
         </div>
       </nav>
 
       <Routes>
         <Route path="/" element={<Landing />} />
+        <Route path="/message" element={<Message />} />
         <Route path="/rsvp" element={<Rsvp />} />
         <Route path="/browse" element={<Browse />} />
         <Route path="/record" element={<Record />} />

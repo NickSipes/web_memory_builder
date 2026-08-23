@@ -1,28 +1,30 @@
 import { test, expect } from '@playwright/test'
 import { mockBackend, collectApiErrors } from './helpers'
 
-test('landing shows the birthday and both actions, no API errors', async ({ page }) => {
+test('landing is a hub: occasion + two clear actions, no API errors', async ({ page }) => {
     const errors = collectApiErrors(page)
     await mockBackend(page)
     await page.goto('/')
 
     await expect(page.getByRole('heading', { name: "Jerry Sipes' 80th Birthday" })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Leave a message' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'RSVP' })).toBeVisible()
     await expect(page.getByText(/RSVP for the party/i)).toBeVisible()
-    // surprise-party logistics are shown
-    await expect(page.getByText(/Arrive by 4:45 PM/i)).toBeVisible()
+    await expect(page.getByRole('link', { name: /Leave a message for Jerry/ })).toHaveAttribute('href', '/message')
+    await expect(page.getByRole('link', { name: /Event details & RSVP/ })).toHaveAttribute('href', '/rsvp')
 
     expect(errors).toEqual([])
 })
 
-test('nav links reach the RSVP and Browse pages', async ({ page }) => {
+test('landing buttons lead to the message and RSVP pages', async ({ page }) => {
     await mockBackend(page)
     await page.goto('/')
-    await page.getByRole('link', { name: 'RSVP', exact: true }).click()
-    await expect(page).toHaveURL(/\/rsvp/)
-    await expect(page.getByRole('button', { name: /Send RSVP/ })).toBeVisible()
+    await page.getByRole('link', { name: /Leave a message for Jerry/ }).click()
+    await expect(page).toHaveURL(/\/message/)
+    await expect(page.getByLabel('Your name')).toBeVisible()
 
-    await page.getByRole('link', { name: 'Browse messages' }).click()
-    await expect(page).toHaveURL(/\/browse/)
+    await page.goto('/')
+    await page.getByRole('link', { name: /Event details & RSVP/ }).click()
+    await expect(page).toHaveURL(/\/rsvp/)
+    // event details incl. the surprise-party logistics live here
+    await expect(page.getByText(/Arrive by 4:45 PM/i)).toBeVisible()
+    await expect(page.getByRole('button', { name: /Send RSVP/ })).toBeVisible()
 })

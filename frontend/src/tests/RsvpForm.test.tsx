@@ -32,18 +32,17 @@ describe('RsvpForm', () => {
         expect(lastBody).toMatchObject({ name: 'No Contact', contact: '' })
     })
 
-    it('submits name, contact, attending, and dietary choices', async () => {
+    it('submits name, contact, attending, and guest count', async () => {
         render(<RsvpForm />)
         await userEvent.type(screen.getByLabelText('Full name'), 'Aunt May')
         await userEvent.type(screen.getByLabelText(/Email or phone/), '555-1234')
         await userEvent.selectOptions(screen.getByLabelText("Additional guests you're bringing"), '2')
-        await userEvent.click(screen.getByLabelText('Nut allergy'))
         await userEvent.click(screen.getByRole('button', { name: /Send RSVP/ }))
         await waitFor(() => expect(screen.getByText(/Thank you, Aunt May/)).toBeInTheDocument())
-        expect(lastBody).toEqual({ name: 'Aunt May', contact: '555-1234', attending: true, guests: 2, dietary: ['Nut allergy'] })
+        expect(lastBody).toEqual({ name: 'Aunt May', contact: '555-1234', attending: true, guests: 2, dietary: [] })
     })
 
-    it('drops dietary choices when not attending', async () => {
+    it('sends attending:false with no guests', async () => {
         render(<RsvpForm />)
         await userEvent.type(screen.getByLabelText('Full name'), 'Bob')
         await userEvent.type(screen.getByLabelText(/Email or phone/), 'bob@x.com')

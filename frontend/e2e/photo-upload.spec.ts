@@ -9,6 +9,8 @@ test('upload a photo through the full flow', async ({ page }) => {
     await mockBackend(page)
 
     await page.goto('/')
+    await page.getByRole('link', { name: /Leave a message for Jerry/ }).click()
+    await expect(page).toHaveURL(/\/message/)
     await page.getByLabel('Your name').fill('Test Guest')
     await page.getByLabel('Your relation to Jerry').selectOption('Son')
     await page.getByRole('button', { name: /Continue/ }).click()

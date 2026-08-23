@@ -1,50 +1,24 @@
-import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
-import RelationSelect from "../components/RelationSelect"
+import { Link } from "react-router-dom"
 import Hero from "../components/Hero"
-import RsvpCard from "../components/RsvpCard"
 
+// A simple hub: set the occasion, then point people at the two things to do.
 export default function Landing() {
-    const [name, setName] = useState<string>("")
-    const [relation, setRelation] = useState<string>("")
-    const navigate = useNavigate()
-
-    const canContinue = name.trim().length > 0 && relation.length > 0
-
-    function handleContinue() {
-        if (!canContinue) return
-        navigate('/record', { state: { name: name.trim(), relation } })
-    }
-
     return (
         <div className="page-stack">
             <Hero />
 
-            <div className="panel">
-                <h2 className="section-heading">Leave a message</h2>
-                <p className="muted" style={{ marginBottom: 16 }}>
-                    Record a video or share photos. We'll play them for Jerry at the party,
-                    and he gets the whole collection afterward.
-                </p>
-
-                <label htmlFor="name-input">Your name</label>
-                <input
-                    id="name-input"
-                    type="text"
-                    placeholder="Your name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                />
-
-                <label htmlFor="relation-select">Your relation to Jerry</label>
-                <RelationSelect value={relation} onChange={setRelation} />
-
-                <button className="btn" onClick={handleContinue} disabled={!canContinue}>
-                    Continue →
-                </button>
+            <div className="choice">
+                <Link to="/message" className="choice-btn">
+                    <span className="choice-icon">🎥</span>
+                    <span className="choice-label">Leave a message for Jerry</span>
+                    <span className="choice-sub">Record or upload a video, photo, or note</span>
+                </Link>
+                <Link to="/rsvp" className="choice-btn">
+                    <span className="choice-icon">📅</span>
+                    <span className="choice-label">Event details &amp; RSVP</span>
+                    <span className="choice-sub">When &amp; where, and let us know you're coming</span>
+                </Link>
             </div>
-
-            <RsvpCard />
 
             <Link to="/admin" className="admin-fab">Admin</Link>
         </div>

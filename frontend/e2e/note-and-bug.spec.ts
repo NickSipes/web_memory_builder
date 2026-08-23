@@ -10,7 +10,7 @@ test('leave a note-only message', async ({ page }) => {
         route.fulfill({ json: { id: 5, ...posted } })
     })
 
-    await page.goto('/')
+    await page.goto('/message')
     await page.getByLabel('Your name').fill('A Friend')
     await page.getByLabel('Your relation to Jerry').selectOption('Friend')
     await page.getByRole('button', { name: /Continue/ }).click()

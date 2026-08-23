@@ -14,12 +14,3 @@ const MAP_QUERY = encodeURIComponent(`St Helen's of the Cross ${EVENT.address}`)
 // Keyless Google Maps: `output=embed` works in an <iframe> without an API key.
 export const MAP_EMBED_URL = `https://maps.google.com/maps?q=${MAP_QUERY}&z=15&output=embed`
 export const MAP_LINK_URL = `https://www.google.com/maps/search/?api=1&query=${MAP_QUERY}`
-
-export const DIETARY_OPTIONS = [
-    "No meat",
-    "No fish",
-    "No poultry",
-    "No dairy",
-    "Nut allergy",
-    "Shellfish allergy",
-]
