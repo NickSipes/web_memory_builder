@@ -13,9 +13,10 @@ describe('Landing', () => {
         expect(screen.getByRole('heading', { name: "Jerry Sipes' 80th Birthday" })).toBeInTheDocument()
     })
 
-    it('offers the two actions, linking to the right pages', () => {
+    it('offers the three actions, linking to the right pages', () => {
         setup()
         expect(screen.getByRole('link', { name: /Leave a message for Jerry/ })).toHaveAttribute('href', '/message')
         expect(screen.getByRole('link', { name: /Event details & RSVP/ })).toHaveAttribute('href', '/rsvp')
+        expect(screen.getByRole('link', { name: /Browse messages/ })).toHaveAttribute('href', '/browse')
     })
 })

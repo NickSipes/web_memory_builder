@@ -5,6 +5,7 @@ import RsvpForm from "./RsvpForm"
 export default function RsvpCard() {
     return (
         <div className="panel">
+            <h2 className="section-heading">Event Details</h2>
             <EventDetails />
             <hr className="divider" />
             <h2 className="section-heading">RSVP</h2>
