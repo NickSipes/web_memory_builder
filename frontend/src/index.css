@@ -38,7 +38,6 @@ body { margin: 0; background: var(--cream); min-height: 100svh; }
   padding: 12px 18px; background: var(--cream);
   border: 1px solid var(--border); border-radius: 12px; margin-bottom: 28px;
 }
-.nav-brand { font-family: var(--serif); font-size: 20px; font-style: italic; color: var(--gold); text-decoration: none; }
 .nav-tabs { display: flex; gap: 6px; }
 .nav-tab {
   font-size: 14px; padding: 6px 16px; border-radius: 20px; cursor: pointer;

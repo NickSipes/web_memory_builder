@@ -18,6 +18,11 @@ export default function Landing() {
                     <span className="choice-label">Event details &amp; RSVP</span>
                     <span className="choice-sub">When &amp; where, and let us know you're coming</span>
                 </Link>
+                <Link to="/browse" className="choice-btn">
+                    <span className="choice-icon">🎬</span>
+                    <span className="choice-label">Browse messages</span>
+                    <span className="choice-sub">See the videos, photos, and notes so far</span>
+                </Link>
             </div>
 
             <Link to="/admin" className="admin-fab">Admin</Link>

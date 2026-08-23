@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useMediaRecorder } from "../hooks/useMediaRecorder";
 
 interface VideoRecorderProps {
@@ -15,6 +16,10 @@ export default function VideoRecorder({ onVideoReady }: VideoRecorderProps) {
         stopRecording,
         resetRecording,
     } = useMediaRecorder()
+
+    // Prompt for the camera as soon as the recorder appears (video is the default
+    // mode on the record page), so people aren't stuck on an extra "Allow" click.
+    useEffect(() => { startCamera() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     const showLive = recordState === 'ready' || recordState === 'recording'
 
