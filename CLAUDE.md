@@ -28,10 +28,15 @@ Frontend (from `frontend/`):
 npm run dev      # Vite on :5173
 npm run build    # tsc -b && vite build
 npm run lint     # eslint
-npm test         # vitest run (jsdom)
+npm test         # vitest run (jsdom) — component/unit tests
+npm run e2e      # playwright — full-UI E2E against the production build
 ```
 
 Backend tests point `DATABASE_URL` at sqlite in `tests/conftest.py` and mock S3 with moto — no Docker/AWS needed. Frontend `Browse` tests mock global `fetch` rather than the api module (a vitest-4 bug flags a `vi.fn()` that returns a rejected promise in non-first tests). Vitest is pinned to `^4`; v3 breaks on the React 19 JSX runtime.
+
+**Production API URL.** The frontend's API base is `import.meta.env.VITE_API_URL ?? '/api'`. For prod builds it MUST be baked in — that lives in committed `frontend/.env.production` (the App Runner URL, not a secret). A plain `npm run build` picks it up; a build without it falls back to `/api`, which on Amplify returns index.html and every API call dies with "Unexpected token '<'".
+
+**E2E (`frontend/e2e/`, Playwright).** Runs against `vite preview` of the real production build, mocking the backend by the exact App Runner host (`e2e/helpers.ts`). Because the mocks match on that host, a build targeting the wrong origin (the `/api` fallback) isn't intercepted and the tests fail — this is the guard for the VITE_API_URL bug above. Run `npm run e2e` after UI/feature changes; unit tests live in `src/**` and are excluded from Playwright (and vice-versa via `vite.config.ts` test.include).
 
 ## Architecture
 

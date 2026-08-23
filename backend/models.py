@@ -13,3 +13,24 @@ class Submission(Base):
     content = Column(Text, nullable=True) # text notes only
     created_at = Column(DateTime, default=datetime.utcnow)
     approved = Column(Boolean, nullable=False, default=False) # admin confirms before it's public
+
+
+class Rsvp(Base):
+    __tablename__ = "rsvps"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    contact = Column(String, nullable=False)   # email or phone
+    attending = Column(Boolean, nullable=False, default=True)
+    guests = Column(Integer, nullable=False, default=0)   # additional people beyond themselves
+    dietary = Column(String, nullable=True)    # comma-joined restrictions, e.g. "No meat,Nut allergy"
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class BugReport(Base):
+    __tablename__ = "bug_reports"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=True)          # optional — who reported it
+    description = Column(Text, nullable=False)     # the bug description
+    created_at = Column(DateTime, default=datetime.utcnow)

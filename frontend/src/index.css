@@ -48,11 +48,43 @@ body { margin: 0; background: var(--cream); min-height: 100svh; }
 .nav-tab.active { background: var(--gold); color: #fff; }
 
 /* --- Layout helpers --- */
+.page-stack > * + * { margin-top: 18px; }
+.section-heading { font-family: var(--serif); font-size: 24px; color: var(--ink); margin-bottom: 4px; }
+.divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+/* --- Event details --- */
+.event-details { display: grid; gap: 14px; }
+.surprise-note { background: var(--tag-bg); border: 1px solid var(--gold-light); border-radius: 12px; padding: 12px 14px; font-size: 14px; line-height: 1.5; color: var(--ink); }
+.surprise-note strong { color: var(--gold-dark); }
+.event-row { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; }
+.event-icon { font-size: 20px; flex-shrink: 0; line-height: 1.2; }
+.event-details a { color: var(--gold-dark); }
+.event-map { width: 100%; height: 240px; border: 1px solid var(--border); border-radius: 12px; }
+
+/* --- RSVP form --- */
+.rsvp-thanks { text-align: center; padding: 8px 0; }
+
+/* --- Landing hub choices --- */
+.choice { display: grid; gap: 14px; max-width: 480px; margin: 0 auto; }
+.choice-btn {
+    display: grid; gap: 4px; text-decoration: none; text-align: center;
+    background: var(--screen-bg); border: 1px solid var(--border); border-radius: 16px;
+    padding: 24px 20px; transition: border-color .15s, transform .1s;
+}
+.choice-btn:hover { border-color: var(--gold); transform: translateY(-2px); }
+.choice-icon { font-size: 32px; }
+.choice-label { font-family: var(--serif); font-size: 20px; color: var(--ink); }
+.choice-sub { font-size: 13px; color: var(--ink-muted); }
+
 .panel {
   background: var(--screen-bg); border: 1px solid var(--border);
   border-radius: 16px; padding: 28px 24px; max-width: 480px; margin: 0 auto;
 }
 .section-label { font-size: 11px; font-weight: 500; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .12em; margin-bottom: 10px; }
+
+/* --- Page hero (top of landing / rsvp) --- */
+.hero { text-align: center; max-width: 560px; margin: 4px auto 2px; }
+.hero .hero-subtitle { margin-bottom: 0; }
 
 /* --- Hero / headings --- */
 .hero-label { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; font-weight: 500; }
@@ -176,6 +208,11 @@ button { font-family: var(--sans); cursor: pointer; }
 .admin-media { max-width: 320px; border-radius: 10px; overflow: hidden; margin-bottom: 12px; background: var(--ink); }
 .admin-media img, .admin-media video { width: 100%; display: block; }
 .admin-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* --- Site footer --- */
+.site-footer { text-align: center; padding: 28px 0 8px; }
+.site-footer a { color: var(--ink-muted); font-size: 13px; text-decoration: none; }
+.site-footer a:hover { color: var(--gold); }
 
 /* --- Admin floating button (home page) --- */
 .admin-fab {

@@ -23,6 +23,7 @@ const RELATIONS = [
 export default function RelationSelect({ value, onChange }: RelationSelectProps) {
     return (
         <select
+            id="relation-select"
             value={value}
             onChange={(e) => onChange(e.target.value)}
         >

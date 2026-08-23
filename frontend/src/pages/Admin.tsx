@@ -1,7 +1,8 @@
 import { useState } from "react"
-import type { Submission } from "../types"
-import { getAllSubmissions, approveSubmission, deleteSubmission } from "../api"
+import type { Submission, Rsvp, BugReport } from "../types"
+import { getAllSubmissions, approveSubmission, deleteSubmission, getRsvps, deleteRsvp, getBugReports, deleteBugReport } from "../api"
 import { downloadZip } from "../lib/download"
+import { downloadRsvpCsv } from "../lib/download"
 
 // Media preview so the admin can review before approving.
 function Preview({ s }: { s: Submission }) {
@@ -23,9 +24,36 @@ export default function Admin() {
     const [confirmId, setConfirmId] = useState<number | null>(null)
     const [selected, setSelected] = useState<Set<number>>(new Set())
     const [downloading, setDownloading] = useState(false)
+    const [rsvps, setRsvps] = useState<Rsvp[]>([])
+    const [bugs, setBugs] = useState<BugReport[]>([])
 
     async function load(c: string) {
-        setSubs(await getAllSubmissions(c))
+        const [s, r, b] = await Promise.all([getAllSubmissions(c), getRsvps(c), getBugReports(c)])
+        setSubs(s)
+        setRsvps(r)
+        setBugs(b)
+    }
+
+    async function handleDeleteBug(id: number) {
+        if (!creds) return
+        setError(null)
+        try {
+            await deleteBugReport(id, creds)
+            await load(creds)
+        } catch (e) {
+            setError(`Couldn't remove report: ${(e as Error).message}`)
+        }
+    }
+
+    async function handleDeleteRsvp(id: number) {
+        if (!creds) return
+        setError(null)
+        try {
+            await deleteRsvp(id, creds)
+            await load(creds)
+        } catch (e) {
+            setError(`Couldn't remove RSVP: ${(e as Error).message}`)
+        }
     }
 
     async function handleLogin(e: React.FormEvent) {
@@ -130,8 +158,92 @@ export default function Admin() {
                 <div className="section-label" style={{ marginTop: 28 }}>Approved ({approved.length})</div>
                 {approved.map((s) => <AdminItem key={s.id} s={s} {...itemProps} />)}
             </>}
+
+            <RsvpSection rsvps={rsvps} onDelete={handleDeleteRsvp} />
+            <BugSection bugs={bugs} onDelete={handleDeleteBug} />
         </div>
     )
+}
+
+function BugSection({ bugs, onDelete }: { bugs: BugReport[]; onDelete: (id: number) => void }) {
+    const [confirmId, setConfirmId] = useState<number | null>(null)
+    return (
+        <div style={{ marginTop: 36 }}>
+            <div className="section-label">Bug reports ({bugs.length})</div>
+            {bugs.length === 0 && <p className="empty">No bug reports.</p>}
+            {bugs.map((b) => (
+                <div key={b.id} className="admin-item">
+                    <div className="admin-head">
+                        <div className="admin-who">
+                            <strong>{b.name || 'Anonymous'}</strong>
+                            <span className="muted"> · {new Date(b.created_at).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                    <p style={{ whiteSpace: 'pre-wrap' }}>{b.description}</p>
+                    <div className="admin-actions">
+                        {confirmId === b.id ? (
+                            <>
+                                <span className="muted" style={{ alignSelf: 'center', fontSize: 13 }}>Remove this report?</span>
+                                <button className="btn-danger" onClick={() => { onDelete(b.id); setConfirmId(null) }}>Yes, remove</button>
+                                <button className="btn-ghost" onClick={() => setConfirmId(null)}>Cancel</button>
+                            </>
+                        ) : (
+                            <button className="btn-danger" onClick={() => setConfirmId(b.id)}>🗑 Remove</button>
+                        )}
+                    </div>
+                </div>
+            ))}
+        </div>
+    )
+}
+
+function RsvpSection({ rsvps, onDelete }: { rsvps: Rsvp[]; onDelete: (id: number) => void }) {
+    const [confirmId, setConfirmId] = useState<number | null>(null)
+    // total headcount = each attending person plus the extra guests they bring
+    const headcount = rsvps.filter((r) => r.attending).reduce((sum, r) => sum + 1 + r.guests, 0)
+    return (
+        <div style={{ marginTop: 36 }}>
+            <div className="download-bar">
+                <span><strong>{headcount}</strong> attending · {rsvps.length} RSVP{rsvps.length === 1 ? '' : 's'}</span>
+                {rsvps.length > 0 && (
+                    <button className="btn-outline" style={{ width: 'auto' }} onClick={() => downloadRsvpCsv(rsvps)}>⬇ Download RSVP list (CSV)</button>
+                )}
+            </div>
+            {rsvps.length === 0 && <p className="empty">No RSVPs yet.</p>}
+            {rsvps.map((r) => (
+                <div key={r.id} className="admin-item">
+                    <div className="admin-head">
+                        <div className="admin-who">
+                            <strong>{r.name}</strong>{r.attending && r.guests > 0 && <span className="muted"> +{r.guests}</span>}
+                            {r.contact
+                                ? <> · <a href={contactHref(r.contact)}>{r.contact}</a></>
+                                : <span className="muted"> · no contact</span>}
+                        </div>
+                        <span className={`badge ${r.attending ? 'badge-approved' : 'badge-pending'}`}>{r.attending ? `Party of ${r.guests + 1}` : 'Not attending'}</span>
+                    </div>
+                    {r.dietary.length > 0 && <p className="muted" style={{ fontSize: 13 }}>Dietary: {r.dietary.join(', ')}</p>}
+                    <div className="admin-actions">
+                        {confirmId === r.id ? (
+                            <>
+                                <span className="muted" style={{ alignSelf: 'center', fontSize: 13 }}>Remove this RSVP?</span>
+                                <button className="btn-danger" onClick={() => { onDelete(r.id); setConfirmId(null) }}>Yes, remove</button>
+                                <button className="btn-ghost" onClick={() => setConfirmId(null)}>Cancel</button>
+                            </>
+                        ) : (
+                            <button className="btn-danger" onClick={() => setConfirmId(r.id)}>🗑 Remove</button>
+                        )}
+                    </div>
+                </div>
+            ))}
+        </div>
+    )
+}
+
+// mailto: / tel: link if the contact looks like an email or phone
+function contactHref(contact: string): string {
+    if (contact.includes('@')) return `mailto:${contact}`
+    const digits = contact.replace(/[^0-9+]/g, '')
+    return digits.length >= 7 ? `tel:${digits}` : '#'
 }
 
 function AdminItem({ s, confirmId, setConfirmId, onApprove, onDelete, selected, onToggleSelect }: {
