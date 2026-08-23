@@ -1,6 +1,6 @@
 // Event details, in one place so the landing page and the RSVP page stay in sync.
 export const EVENT = {
-    title: "Jerry Sipes' 80th Birthday",
+    title: "Jerry Sipes' Surprise 80th Birthday Party",
     date: "Saturday, October 17, 2026",
     shortDate: "October 17, 2026",
     city: "Eloy, AZ",
