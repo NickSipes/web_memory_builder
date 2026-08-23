@@ -9,6 +9,8 @@ test('landing is a hub: occasion + two clear actions, no API errors', async ({ p
     await expect(page.getByRole('heading', { name: "Jerry Sipes' Surprise 80th Birthday Party" })).toBeVisible()
     await expect(page.getByRole('link', { name: /Leave a message for Jerry/ })).toHaveAttribute('href', '/message')
     await expect(page.getByRole('link', { name: /Event details & RSVP/ })).toHaveAttribute('href', '/rsvp')
+    // contact footer on every page
+    await expect(page.getByText(/Reach out to John Sipes/)).toBeVisible()
 
     expect(errors).toEqual([])
 })

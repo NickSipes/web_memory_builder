@@ -32,6 +32,11 @@ export default function App() {
       </Routes>
 
       <footer className="site-footer">
+        <p className="footer-contact">
+          Questions? Reach out to John Sipes (
+          <a href="tel:+17575100156">757-510-0156</a>,{' '}
+          <a href="mailto:johnsipes@verizon.net">johnsipes@verizon.net</a>)
+        </p>
         <Link to="/report-bug">🐞 Report a bug</Link>
       </footer>
     </BrowserRouter>
