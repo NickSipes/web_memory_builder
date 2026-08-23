@@ -10,6 +10,8 @@ test('landing shows the birthday and both actions, no API errors', async ({ page
     await expect(page.getByRole('heading', { name: 'Leave a message' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'RSVP' })).toBeVisible()
     await expect(page.getByText(/RSVP for the party/i)).toBeVisible()
+    // surprise-party logistics are shown
+    await expect(page.getByText(/Arrive by 4:45 PM/i)).toBeVisible()
 
     expect(errors).toEqual([])
 })

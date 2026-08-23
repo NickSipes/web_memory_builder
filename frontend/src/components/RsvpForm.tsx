@@ -80,7 +80,7 @@ export default function RsvpForm() {
 
             {attending && (
                 <fieldset className="diet-set">
-                    <legend>Dietary restrictions (optional)</legend>
+                    <legend>Allergies or dietary needs (optional)</legend>
                     {DIETARY_OPTIONS.map((opt) => (
                         <label key={opt} className="diet-opt">
                             <input type="checkbox" checked={dietary.has(opt)} onChange={() => toggleDiet(opt)} />

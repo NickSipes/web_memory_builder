@@ -5,6 +5,7 @@ export const EVENT = {
     shortDate: "October 17, 2026",
     city: "Eloy, AZ",
     time: "5:00 – 9:00 PM",
+    arrival: "4:45 PM",   // surprise — everyone seated before Jerry arrives at 5:00
     venue: "St. Helen's of the Cross — Parish Hall",
     address: "205 W 8th St, Eloy, AZ 85231",
 }

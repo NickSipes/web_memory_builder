@@ -7,7 +7,7 @@ export default function Hero() {
             <div className="hero-label">{EVENT.shortDate} · {EVENT.city}</div>
             <h1 className="hero-title">{EVENT.title}</h1>
             <p className="hero-subtitle">
-                You're invited! RSVP for the party, and leave a video, photo, or note
+                It's a surprise! RSVP for the party, and leave a video, photo, or note
                 we'll play for him during the celebration.
             </p>
         </div>

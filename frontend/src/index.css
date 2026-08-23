@@ -54,6 +54,8 @@ body { margin: 0; background: var(--cream); min-height: 100svh; }
 
 /* --- Event details --- */
 .event-details { display: grid; gap: 14px; }
+.surprise-note { background: var(--tag-bg); border: 1px solid var(--gold-light); border-radius: 12px; padding: 12px 14px; font-size: 14px; line-height: 1.5; color: var(--ink); }
+.surprise-note strong { color: var(--gold-dark); }
 .event-row { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; }
 .event-icon { font-size: 20px; flex-shrink: 0; line-height: 1.2; }
 .event-details a { color: var(--gold-dark); }

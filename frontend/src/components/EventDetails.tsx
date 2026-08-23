@@ -3,8 +3,13 @@ import { EVENT, MAP_EMBED_URL, MAP_LINK_URL } from "../event"
 export default function EventDetails() {
     return (
         <div className="event-details">
+            <div className="surprise-note">
+                🤫 <strong>It's a surprise!</strong> Please keep it a secret. Arrive by{' '}
+                <strong>{EVENT.arrival}</strong> so everyone is seated before Jerry arrives at 5:00 PM.
+            </div>
+
             <div className="event-row"><span className="event-icon">📅</span>
-                <div><strong>{EVENT.date}</strong><br /><span className="muted">{EVENT.time}</span></div>
+                <div><strong>{EVENT.date}</strong><br /><span className="muted">Arrive {EVENT.arrival} · party {EVENT.time}</span></div>
             </div>
             <div className="event-row"><span className="event-icon">📍</span>
                 <div>
@@ -12,6 +17,10 @@ export default function EventDetails() {
                     <a href={MAP_LINK_URL} target="_blank" rel="noopener noreferrer">{EVENT.address}</a>
                 </div>
             </div>
+            <div className="event-row"><span className="event-icon">🍽️</span>
+                <div><span className="muted">No menu — nothing to pre-order.</span></div>
+            </div>
+
             <iframe
                 className="event-map"
                 title="Event location map"
