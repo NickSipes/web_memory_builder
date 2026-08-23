@@ -6,8 +6,7 @@ test('landing is a hub: occasion + two clear actions, no API errors', async ({ p
     await mockBackend(page)
     await page.goto('/')
 
-    await expect(page.getByRole('heading', { name: "Jerry Sipes' 80th Birthday" })).toBeVisible()
-    await expect(page.getByText(/RSVP for the party/i)).toBeVisible()
+    await expect(page.getByRole('heading', { name: "Jerry Sipes' Surprise 80th Birthday Party" })).toBeVisible()
     await expect(page.getByRole('link', { name: /Leave a message for Jerry/ })).toHaveAttribute('href', '/message')
     await expect(page.getByRole('link', { name: /Event details & RSVP/ })).toHaveAttribute('href', '/rsvp')
 

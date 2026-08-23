@@ -11,7 +11,7 @@ export default function Landing() {
                 <Link to="/message" className="choice-btn">
                     <span className="choice-icon">🎥</span>
                     <span className="choice-label">Leave a message for Jerry</span>
-                    <span className="choice-sub">Record or upload a video, photo, or note</span>
+                    <span className="choice-sub">Record or upload a video, photo, or note by 9/30</span>
                 </Link>
                 <Link to="/rsvp" className="choice-btn">
                     <span className="choice-icon">📅</span>

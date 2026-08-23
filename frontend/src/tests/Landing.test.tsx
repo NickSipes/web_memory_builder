@@ -10,7 +10,7 @@ function setup() {
 describe('Landing', () => {
     it('shows the occasion', () => {
         setup()
-        expect(screen.getByRole('heading', { name: "Jerry Sipes' 80th Birthday" })).toBeInTheDocument()
+        expect(screen.getByRole('heading', { name: "Jerry Sipes' Surprise 80th Birthday Party" })).toBeInTheDocument()
     })
 
     it('offers the three actions, linking to the right pages', () => {
