@@ -18,7 +18,7 @@ export default function EventDetails() {
                 </div>
             </div>
             <div className="event-row"><span className="event-icon">🍽️</span>
-                <div><span className="muted">No menu — nothing to pre-order.</span></div>
+                <div><span className="muted">Food will be provided.</span></div>
             </div>
 
             <iframe
