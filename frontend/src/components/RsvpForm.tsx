@@ -1,35 +1,15 @@
 import { useState } from "react"
 import { createRsvp } from "../api"
 
-const DIET_OPTIONS = ['Shellfish', 'Dairy', 'Peanuts', 'No meat', 'Gluten', 'Other']
-
 export default function RsvpForm() {
     const [name, setName] = useState('')
     const [contact, setContact] = useState('')
     const [attending, setAttending] = useState(true)
     const [guests, setGuests] = useState(0)
-    const [diet, setDiet] = useState<Set<string>>(new Set())
-    const [dietOther, setDietOther] = useState('')
     const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
     const [error, setError] = useState<string | null>(null)
 
     const canSend = name.trim() && status !== 'sending'   // contact is optional
-
-    function toggleDiet(opt: string) {
-        setDiet((prev) => {
-            const n = new Set(prev)
-            n.has(opt) ? n.delete(opt) : n.add(opt)
-            return n
-        })
-    }
-
-    // Checked options → the API's list; "Other" becomes its free-text value.
-    function dietaryPayload(): string[] {
-        if (!attending) return []
-        const items = [...diet].filter((d) => d !== 'Other')
-        if (diet.has('Other') && dietOther.trim()) items.push(dietOther.trim())
-        return items
-    }
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
@@ -42,7 +22,7 @@ export default function RsvpForm() {
                 contact: contact.trim(),
                 attending,
                 guests: attending ? guests : 0,
-                dietary: dietaryPayload(),
+                dietary: [],
             })
             setStatus('done')
         } catch (err) {
@@ -84,20 +64,6 @@ export default function RsvpForm() {
                         <option key={n} value={n}>{n === 0 ? 'Just me' : `+${n} guest${n === 1 ? '' : 's'}`}</option>
                     ))}
                 </select>
-
-                <fieldset className="diet-set">
-                    <legend>Dietary restrictions / allergies (optional)</legend>
-                    {DIET_OPTIONS.map((opt) => (
-                        <label key={opt} className="diet-opt">
-                            <input type="checkbox" checked={diet.has(opt)} onChange={() => toggleDiet(opt)} />
-                            {opt}
-                        </label>
-                    ))}
-                    {diet.has('Other') && (
-                        <input type="text" aria-label="Other dietary restriction" placeholder="Please describe"
-                            value={dietOther} onChange={(e) => setDietOther(e.target.value)} />
-                    )}
-                </fieldset>
             </>}
 
             {error && <p className="error">Error: {error}</p>}
