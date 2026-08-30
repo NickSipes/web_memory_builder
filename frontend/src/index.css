@@ -62,11 +62,6 @@ body { margin: 0; background: var(--cream); min-height: 100svh; }
 
 /* --- RSVP form --- */
 .rsvp-thanks { text-align: center; padding: 8px 0; }
-.diet-set { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin: 4px 0 14px; display: grid; gap: 9px; }
-.diet-set legend { font-size: 12px; color: var(--ink-muted); padding: 0 6px; }
-.diet-opt { display: flex; align-items: center; gap: 9px; font-size: 14px; color: var(--ink); margin: 0; }
-.diet-opt input { width: auto; margin: 0; }
-.diet-set input[type="text"] { margin: 4px 0 0; }
 
 /* --- Landing hub choices --- */
 .choice { display: grid; gap: 14px; max-width: 480px; margin: 0 auto; }
