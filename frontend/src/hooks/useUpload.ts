@@ -5,50 +5,53 @@ type UploadStatus = 'idle' | 'uploading' | 'saving' | 'done' | 'error'
 
 interface UploadState {
     status: UploadStatus
-    progress: number // 0-100, status for uploading
+    progress: number // 0-100, for the file currently uploading
+    index: number    // which file we're on (0-based), for batch progress
+    total: number    // how many files in this submission
     error: string | null
 }
 
 interface SubmitMediaArgs {
     name: string
     relation: string
-    blob: Blob        // a File (uploaded) or a captured Blob (camera)
+    blobs: Blob[]     // one File each (uploaded) or a single captured Blob (camera)
     note?: string     // optional written note that rides along with the media
 }
 
+const IDLE: UploadState = { status: 'idle', progress: 0, index: 0, total: 0, error: null }
+
 export function useUpload() {
-    const [state, setState] = useState<UploadState>({
-        status: 'idle',
-        progress: 0,
-        error: null,
-    })
+    const [state, setState] = useState<UploadState>(IDLE)
 
-    // Both video and photo take the same path; only the type + defaults differ.
-    async function submitMedia(type: 'video' | 'photo', { name, relation, blob, note }: SubmitMediaArgs): Promise<boolean> {
-        setState({ status: 'uploading', progress: 0, error: null })
-        const f = blob as File
-        const contentType = blob.type || (type === 'video' ? 'video/webm' : 'image/jpeg')
-        // filename extension must match the actual format (a recorded MP4 saved
-        // as .webm won't open in most players)
-        const ext = type === 'video'
-            ? (contentType.includes('mp4') ? 'mp4' : 'webm')
-            : (contentType.includes('png') ? 'png' : 'jpg')
-        const filename = f.name || (type === 'video' ? `recording.${ext}` : `photo.${ext}`)
-
+    // Video and photo take the same path; only the type + defaults differ.
+    // Multiple files → one S3 upload + one submission each, uploaded in order.
+    // The note (if any) rides along with every file.
+    async function submitMedia(type: 'video' | 'photo', { name, relation, blobs, note }: SubmitMediaArgs): Promise<boolean> {
         try {
-            const { presigned_url, s3_key } = await getPresignedUrl(filename, contentType)
+            for (let i = 0; i < blobs.length; i++) {
+                const blob = blobs[i]
+                setState({ status: 'uploading', progress: 0, index: i, total: blobs.length, error: null })
+                const f = blob as File
+                const contentType = blob.type || (type === 'video' ? 'video/webm' : 'image/jpeg')
+                // filename extension must match the actual format (a recorded MP4
+                // saved as .webm won't open in most players)
+                const ext = type === 'video'
+                    ? (contentType.includes('mp4') ? 'mp4' : 'webm')
+                    : (contentType.includes('png') ? 'png' : 'jpg')
+                const filename = f.name || (type === 'video' ? `recording.${ext}` : `photo.${ext}`)
 
-            await uploadToS3(presigned_url, blob, contentType, (progress) => {
-                setState(prev => ({ ...prev, progress }))
-            })
+                const { presigned_url, s3_key } = await getPresignedUrl(filename, contentType)
+                await uploadToS3(presigned_url, blob, contentType, (progress) => {
+                    setState(prev => ({ ...prev, progress }))
+                })
 
-            setState(prev => ({ ...prev, status: 'saving' }))
-            await createSubmission({ name, relation, type, s3_key, content: note?.trim() || undefined })
-
-            setState({ status: 'done', progress: 100, error: null })
+                setState(prev => ({ ...prev, status: 'saving' }))
+                await createSubmission({ name, relation, type, s3_key, content: note?.trim() || undefined })
+            }
+            setState({ status: 'done', progress: 100, index: blobs.length, total: blobs.length, error: null })
             return true
         } catch (err) {
-            setState({ status: 'error', progress: 0, error: (err as Error).message })
+            setState(prev => ({ ...prev, status: 'error', error: (err as Error).message }))
             return false
         }
     }
@@ -58,13 +61,13 @@ export function useUpload() {
 
     // A written note on its own — no upload, straight to Postgres.
     async function submitNote({ name, relation, note }: { name: string; relation: string; note: string }): Promise<boolean> {
-        setState({ status: 'saving', progress: 0, error: null })
+        setState({ ...IDLE, status: 'saving' })
         try {
             await createSubmission({ name, relation, type: 'note', content: note.trim() })
-            setState({ status: 'done', progress: 100, error: null })
+            setState({ ...IDLE, status: 'done', progress: 100 })
             return true
         } catch (err) {
-            setState({ status: 'error', progress: 0, error: (err as Error).message })
+            setState({ ...IDLE, status: 'error', error: (err as Error).message })
             return false
         }
     }

@@ -28,7 +28,7 @@ describe('useUpload', () => {
     it('submitVideo presigns then saves a video submission', async () => {
         const { result } = renderHook(() => useUpload())
         await act(async () => {
-            await result.current.submitVideo({ name: 'A', relation: 'Son', blob: new Blob(['x']) })
+            await result.current.submitVideo({ name: 'A', relation: 'Son', blobs: [new Blob(['x'])] })
         })
         expect(mockPresign).toHaveBeenCalled()
         expect(mockCreate).toHaveBeenCalledWith({ name: 'A', relation: 'Son', type: 'video', s3_key: 'k', content: undefined })
@@ -38,15 +38,25 @@ describe('useUpload', () => {
     it('submitPhoto includes the optional note as content', async () => {
         const { result } = renderHook(() => useUpload())
         await act(async () => {
-            await result.current.submitPhoto({ name: 'A', relation: 'Son', blob: new Blob(['x']), note: '  hi there ' })
+            await result.current.submitPhoto({ name: 'A', relation: 'Son', blobs: [new Blob(['x'])], note: '  hi there ' })
         })
         expect(mockCreate).toHaveBeenCalledWith({ name: 'A', relation: 'Son', type: 'photo', s3_key: 'k', content: 'hi there' })
+    })
+
+    it('uploads every file as its own submission', async () => {
+        const { result } = renderHook(() => useUpload())
+        await act(async () => {
+            await result.current.submitPhoto({ name: 'A', relation: 'Son', blobs: [new Blob(['x']), new Blob(['y']), new Blob(['z'])] })
+        })
+        expect(mockPresign).toHaveBeenCalledTimes(3)
+        expect(mockCreate).toHaveBeenCalledTimes(3)
+        await waitFor(() => expect(result.current.status).toBe('done'))
     })
 
     it('omits content when the note is blank', async () => {
         const { result } = renderHook(() => useUpload())
         await act(async () => {
-            await result.current.submitVideo({ name: 'A', relation: 'Son', blob: new Blob(['x']), note: '   ' })
+            await result.current.submitVideo({ name: 'A', relation: 'Son', blobs: [new Blob(['x'])], note: '   ' })
         })
         expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({ content: undefined }))
     })
@@ -65,7 +75,7 @@ describe('useUpload', () => {
         const { result } = renderHook(() => useUpload())
         let ret = true
         await act(async () => {
-            ret = await result.current.submitPhoto({ name: 'A', relation: 'Son', blob: new Blob(['x']) })
+            ret = await result.current.submitPhoto({ name: 'A', relation: 'Son', blobs: [new Blob(['x'])] })
         })
         expect(ret).toBe(false)
         await waitFor(() => expect(result.current.status).toBe('error'))
