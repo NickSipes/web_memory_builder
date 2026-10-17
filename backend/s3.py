@@ -48,14 +48,17 @@ def delete_object(s3_key: str) -> None:
     s3_client.delete_object(Bucket=BUCKET_NAME, Key=s3_key)
 
 
-def generate_presigned_get(s3_key: str, expires_in: int = 3600) -> str:
+def generate_presigned_get(s3_key: str, expires_in: int = 3600, download_name: str | None = None) -> str:
     """
     Returns a URL someone can GET (stream/download) a specific object.
-    This will be used to make stored videos playable
+    This will be used to make stored videos playable.
+    download_name: if set, forces the browser to download with that filename.
     """
+    params = {"Bucket": BUCKET_NAME, "Key": s3_key}
+    if download_name:
+        params["ResponseContentDisposition"] = f'attachment; filename="{download_name}"'
     return s3_client.generate_presigned_url(
         "get_object",
-        Params={
-            "Bucket": BUCKET_NAME, "Key": s3_key},
+        Params=params,
         ExpiresIn=expires_in,
     )

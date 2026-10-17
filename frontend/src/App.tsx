@@ -7,6 +7,7 @@ import Confirm from './pages/Confirm'
 import Admin from './pages/Admin'
 import Rsvp from './pages/Rsvp'
 import ReportBug from './pages/ReportBug'
+import Downloads from './pages/Downloads'
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/confirm" element={<Confirm />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/report-bug" element={<ReportBug />} />
+        <Route path="/downloads" element={<Downloads />} />
       </Routes>
 
       <footer className="site-footer">
