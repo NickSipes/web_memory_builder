@@ -2,6 +2,7 @@ import os
 import secrets
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy.orm import Session
 from typing import List
@@ -122,6 +123,22 @@ def get_presigned_url(body: PresignedRequest):
     and the key where the file will live once uploaded.
     """
     return generate_presigned_put(body.filename, body.content_type)
+
+
+# Fixed party deliverables sitting under downloads/ in the bucket. The public
+# /downloads page links straight here; we 307 to a short-lived presigned GET.
+DOWNLOADS = {
+    "video": ("downloads/GpaSipe80Video_short_w_music.mp4", "Jerry_80th_Birthday_Video.mp4"),
+    "pictures": ("downloads/Jerry_Birthday_Slideshow.pptx", "Jerry_Birthday_Slideshow.pptx"),
+}
+
+@app.get("/download/{item}")
+def download(item: str):
+    entry = DOWNLOADS.get(item)
+    if not entry:
+        raise HTTPException(status_code=404, detail="Unknown download")
+    key, name = entry
+    return RedirectResponse(generate_presigned_get(key, download_name=name))
 
 
 # --- RSVPs ----------------------------------------------------------------

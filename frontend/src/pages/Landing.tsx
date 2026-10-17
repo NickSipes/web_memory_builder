@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom"
 import Hero from "../components/Hero"
+import downloadsQr from "../assets/downloads-qr.svg"
 
 // A simple hub: set the occasion, then point people at the two things to do.
 export default function Landing() {
@@ -24,6 +25,11 @@ export default function Landing() {
                     <span className="choice-sub">See the videos, photos, and notes so far</span>
                 </Link>
             </div>
+
+            <Link to="/downloads" className="qr-card">
+                <img src={downloadsQr} alt="QR code to the downloads page" className="qr-img" />
+                <span className="qr-label">Scan to download the pictures &amp; video</span>
+            </Link>
 
             <Link to="/admin" className="admin-fab">Admin</Link>
         </div>

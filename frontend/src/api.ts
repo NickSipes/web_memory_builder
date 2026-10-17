@@ -2,7 +2,7 @@ import type { Submission, PresignedResponse, SubmissionCreate, Rsvp, RsvpCreate,
 
 // Prod points at the deployed API via VITE_API_URL; in dev this is unset and
 // Vite proxies /api to localhost:8000 (see vite.config.ts)
-const BASE = import.meta.env.VITE_API_URL ?? '/api'
+export const BASE = import.meta.env.VITE_API_URL ?? '/api'
 
 export async function getSubmissions(): Promise<Submission[]> {
     const res = await fetch(`${BASE}/submissions`)
